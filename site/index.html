@@ -1,0 +1,1378 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Adjustglow</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Karla:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #FAF8F4;
+    --surface: #FFFFFF;
+    --surface-sunk: #F1EEE6;
+    --ink: #17140F;
+    --ink-soft: #5A5245;
+    --ink-faint: #948B79;
+    --line: #E7E1D4;
+    --accent: #E7A926;
+    --accent-deep: #BD8814;
+    --accent-ink: #251801;
+    --orange: #D9581B;
+    --orange-soft: #FBE3D1;
+    --shadow: 0 1px 2px rgba(23,20,15,0.07), 0 12px 32px -16px rgba(23,20,15,0.22);
+    --radius-s: 6px;
+    --radius-m: 10px;
+    --radius-l: 18px;
+    color-scheme: light;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0A0907;
+      --surface: #16130E;
+      --surface-sunk: #0E0C09;
+      --ink: #F4EFE3;
+      --ink-soft: #C7BEAC;
+      --ink-faint: #8B826F;
+      --line: #2B251C;
+      --accent: #F0BB3E;
+      --accent-deep: #F8D07A;
+      --accent-ink: #2A1B02;
+      --orange: #FF7A33;
+      --orange-soft: #3B2213;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 20px 40px -20px rgba(0,0,0,0.55);
+      color-scheme: dark;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #0A0907;
+    --surface: #16130E;
+    --surface-sunk: #0E0C09;
+    --ink: #F4EFE3;
+    --ink-soft: #C7BEAC;
+    --ink-faint: #8B826F;
+    --line: #2B251C;
+    --accent: #F0BB3E;
+    --accent-deep: #F8D07A;
+    --accent-ink: #2A1B02;
+    --orange: #FF7A33;
+    --orange-soft: #3B2213;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 20px 40px -20px rgba(0,0,0,0.55);
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Karla', ui-sans-serif, system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    padding-inline: max(20px, calc((100% - 1160px) / 2));
+  }
+
+  h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; text-wrap: balance; margin: 0; color: var(--ink); }
+  p { margin: 0; }
+  a { color: inherit; }
+
+  .mono {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    letter-spacing: 0.02em;
+  }
+
+  .eyebrow {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--orange);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .eyebrow::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent);
+  }
+
+  section { max-width: 1160px; margin: 0 auto; }
+
+  /* ---------- Nav ---------- */
+  header {
+    max-width: 1160px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-block: 22px;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 1.25rem;
+    letter-spacing: -0.01em;
+    text-decoration: none;
+    color: var(--ink);
+  }
+  .logo-mark {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, var(--orange), var(--accent) 60%, transparent 80%);
+    box-shadow: 0 0 14px 2px color-mix(in srgb, var(--accent) 55%, transparent);
+    flex: none;
+  }
+  nav.links {
+    display: flex;
+    gap: 28px;
+    font-size: 0.94rem;
+    color: var(--ink-soft);
+  }
+  nav.links a { text-decoration: none; }
+  nav.links a:hover { color: var(--ink); }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 11px 20px;
+    border-radius: var(--radius-s);
+    font-weight: 600;
+    font-size: 0.92rem;
+    text-decoration: none;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    font-family: 'Karla', sans-serif;
+  }
+  .btn:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
+  .btn-primary { background: var(--ink); color: var(--bg); }
+  :root[data-theme="dark"] .btn-primary, @media (prefers-color-scheme: dark) { }
+  .btn-primary { background: var(--ink); color: var(--bg); }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
+  .btn-ghost { border-color: var(--line); color: var(--ink); background: transparent; }
+  .btn-ghost:hover { border-color: var(--ink-faint); }
+  .btn-accent { background: var(--accent); color: var(--accent-ink); }
+  .btn-accent:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
+  .nav-cta { display: flex; align-items: center; gap: 14px; }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: 56px;
+    align-items: center;
+    padding-block: 40px 64px;
+  }
+  .hero h1 {
+    font-size: clamp(2.3rem, 4vw, 3.35rem);
+    font-weight: 600;
+    line-height: 1.06;
+    letter-spacing: -0.01em;
+  }
+  .hero h1 em {
+    font-style: normal;
+    color: var(--orange);
+  }
+  .hero-sub {
+    margin-top: 20px;
+    font-size: 1.1rem;
+    color: var(--ink-soft);
+    max-width: 46ch;
+  }
+  .hero-cta { display: flex; gap: 14px; margin-top: 30px; flex-wrap: wrap; }
+  .hero-meta {
+    margin-top: 28px;
+    display: flex;
+    gap: 22px;
+    flex-wrap: wrap;
+    font-size: 0.86rem;
+    color: var(--ink-faint);
+  }
+  .hero-meta span { display: flex; align-items: center; gap: 7px; }
+  .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--orange); flex: none; }
+
+  /* ---------- Hero demo card ---------- */
+  .demo-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-l);
+    box-shadow: var(--shadow);
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .demo-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.78rem;
+    color: var(--ink-faint);
+    padding-bottom: 12px;
+    border-bottom: 1px dashed var(--line);
+  }
+  .demo-row {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 10px 12px;
+    border-radius: var(--radius-m);
+    background: var(--surface-sunk);
+  }
+  .demo-row .avatar {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: var(--orange-soft); color: var(--orange);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; font-weight: 600;
+    flex: none;
+  }
+  .demo-row .body { font-size: 0.88rem; color: var(--ink); }
+  .demo-row .label { font-size: 0.72rem; color: var(--ink-faint); margin-bottom: 3px; }
+  .demo-arrow { text-align: center; color: var(--ink-faint); font-size: 0.85rem; }
+  .demo-sync {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .sync-badge {
+    flex: 1;
+    min-width: 130px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border-radius: var(--radius-m);
+    border: 1px solid var(--line);
+    background: var(--surface);
+    font-size: 0.82rem;
+    font-weight: 600;
+  }
+  .sync-badge .stars { color: var(--accent); letter-spacing: 1px; }
+  .sync-badge .ok { margin-left: auto; color: var(--orange); font-size: 0.78rem; font-family: 'IBM Plex Mono', monospace; }
+
+  /* ---------- Section shell ---------- */
+  .band { padding-block: 70px; border-top: 1px solid var(--line); }
+  .band-head { max-width: 60ch; margin-bottom: 40px; }
+  .band-head h2 { font-size: clamp(1.7rem, 2.6vw, 2.2rem); margin-top: 12px; font-weight: 600; }
+  .band-head p { margin-top: 14px; color: var(--ink-soft); font-size: 1.03rem; }
+
+  /* ---------- Services grid ---------- */
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+  .service-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-m);
+    padding: 22px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .service-icon {
+    width: 34px; height: 34px;
+    border-radius: var(--radius-s);
+    background: var(--orange-soft);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--orange);
+  }
+  .service-icon svg { width: 18px; height: 18px; }
+  .service-card h3 { font-size: 1.04rem; font-weight: 600; }
+  .service-card p { font-size: 0.9rem; color: var(--ink-soft); }
+
+  /* ---------- How it works ---------- */
+  .flow {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0;
+    counter-reset: step;
+    position: relative;
+  }
+  .flow::before {
+    content: "";
+    position: absolute;
+    top: 17px;
+    left: 6%;
+    right: 6%;
+    height: 1px;
+    background: repeating-linear-gradient(to right, var(--line) 0 6px, transparent 6px 12px);
+  }
+  .step { position: relative; padding-right: 14px; }
+  .step .num {
+    counter-increment: step;
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--orange);
+    position: relative;
+    z-index: 1;
+    margin-bottom: 16px;
+  }
+  .step:first-child .num { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .step h3 { font-size: 0.96rem; font-weight: 600; margin-bottom: 6px; }
+  .step p { font-size: 0.85rem; color: var(--ink-soft); }
+
+  /* ---------- Syndication spotlight ---------- */
+  .spotlight {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-l);
+    padding: 44px;
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: 40px;
+    align-items: center;
+  }
+  .spotlight-copy p { color: var(--ink-soft); margin-top: 14px; }
+  .spotlight-list { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
+  .spotlight-list li { list-style: none; display: flex; gap: 10px; font-size: 0.92rem; }
+  .spotlight-list li::before { content: "✓"; color: var(--orange); font-weight: 700; }
+
+  .diagram { width: 100%; height: auto; }
+
+  /* ---------- Pricing ---------- */
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; align-items: stretch; }
+  .price-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-m);
+    padding: 28px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .price-card.featured {
+    border-color: var(--accent);
+    box-shadow: var(--shadow);
+    position: relative;
+  }
+  .price-tag {
+    position: absolute;
+    top: -12px;
+    left: 24px;
+    background: var(--accent);
+    color: var(--accent-ink);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 999px;
+  }
+  .price-card h3 { font-size: 1.05rem; font-weight: 600; }
+  .price-card .amount { font-family: 'Fraunces', serif; font-size: 2.1rem; font-weight: 600; }
+  .price-card .amount span { font-family: 'Karla', sans-serif; font-size: 0.95rem; font-weight: 500; color: var(--ink-faint); }
+  .price-card .desc { font-size: 0.85rem; color: var(--ink-soft); }
+  .price-card ul { margin: 0; padding: 0; display: flex; flex-direction: column; gap: 9px; flex: 1; }
+  .price-card li { list-style: none; font-size: 0.88rem; display: flex; gap: 9px; color: var(--ink); }
+  .price-card li::before { content: "—"; color: var(--ink-faint); }
+  .price-note { margin-top: 22px; font-size: 0.82rem; color: var(--ink-faint); }
+
+  /* ---------- FAQ ---------- */
+  .faq { display: flex; flex-direction: column; }
+  .faq-item { padding-block: 20px; border-top: 1px solid var(--line); }
+  .faq-item:last-child { border-bottom: 1px solid var(--line); }
+  .faq-item h3 { font-size: 1rem; font-weight: 600; font-family: 'Karla', sans-serif; }
+  .faq-item p { margin-top: 8px; font-size: 0.92rem; color: var(--ink-soft); max-width: 70ch; }
+
+  /* ---------- CTA band ---------- */
+  .cta-band {
+    background: var(--ink);
+    color: var(--bg);
+    border-radius: var(--radius-l);
+    padding: 52px 44px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 30px;
+    flex-wrap: wrap;
+  }
+  .cta-band h2 { color: var(--bg); font-size: clamp(1.5rem, 2.4vw, 2rem); max-width: 32ch; }
+  .cta-band .btn-accent { flex: none; }
+
+  /* ---------- Footer ---------- */
+  footer { padding-block: 46px 60px; }
+  .foot-top {
+    display: grid;
+    grid-template-columns: 1.4fr repeat(3, 1fr);
+    gap: 30px;
+    padding-bottom: 34px;
+    border-bottom: 1px solid var(--line);
+  }
+  .foot-brand p { margin-top: 12px; color: var(--ink-soft); font-size: 0.88rem; max-width: 32ch; }
+  .foot-col h4 { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-faint); margin-bottom: 14px; font-weight: 600; }
+  .foot-col a { display: block; font-size: 0.9rem; color: var(--ink-soft); text-decoration: none; margin-bottom: 10px; }
+  .foot-col a:hover { color: var(--ink); }
+  .foot-bottom {
+    padding-top: 22px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: var(--ink-faint);
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; }
+    .grid-4 { grid-template-columns: repeat(2, 1fr); }
+    .grid-3 { grid-template-columns: 1fr; }
+    .flow { grid-template-columns: repeat(2, 1fr); gap: 24px; }
+    .flow::before { display: none; }
+    .spotlight { grid-template-columns: 1fr; padding: 30px; }
+    .foot-top { grid-template-columns: 1fr 1fr; }
+    nav.links { display: none; }
+  }
+  @media (max-width: 560px) {
+    .grid-4 { grid-template-columns: 1fr; }
+    .flow { grid-template-columns: 1fr; }
+    .foot-top { grid-template-columns: 1fr; }
+    .cta-band { flex-direction: column; align-items: flex-start; }
+    header { padding-block: 18px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+
+  /* ---------- Live demo page ---------- */
+  #demo-view {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  .demo-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1160px;
+    margin: 0 auto;
+    width: 100%;
+    padding-block: 22px;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: var(--ink-soft);
+    font-size: 0.9rem;
+  }
+  .back-link:hover { color: var(--ink); }
+  .demo-intro {
+    max-width: 1160px;
+    margin: 0 auto;
+    width: 100%;
+    padding-block: 8px 40px;
+  }
+  .demo-intro h1 {
+    font-size: clamp(1.8rem, 3.2vw, 2.6rem);
+    font-weight: 600;
+    max-width: 24ch;
+  }
+  .demo-intro p {
+    margin-top: 14px;
+    color: var(--ink-soft);
+    max-width: 62ch;
+    font-size: 1.02rem;
+  }
+  .demo-intro .demo-persona {
+    margin-top: 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.82rem;
+    color: var(--ink-faint);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    padding: 7px 13px;
+    border-radius: 999px;
+  }
+  .demo-main {
+    max-width: 1160px;
+    margin: 0 auto;
+    width: 100%;
+    padding-block: 0 60px;
+    flex: 1;
+  }
+  .demo-grid {
+    display: grid;
+    grid-template-columns: 1.3fr 0.9fr;
+    gap: 22px;
+    align-items: start;
+  }
+  .live-chat-card, .flagged-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-l);
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .live-chat-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--line);
+  }
+  .live-chat-head .name { font-family: 'Fraunces', serif; font-weight: 600; }
+  .live-chat-head .status {
+    font-size: 0.74rem; color: var(--ink-faint);
+    display: flex; align-items: center; gap: 6px; margin-top: 2px;
+  }
+  .live-chat-head .status::before {
+    content: ""; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent);
+  }
+  .live-messages {
+    flex: 1;
+    min-height: 380px;
+    max-height: 480px;
+    overflow-y: auto;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: var(--surface-sunk);
+  }
+  .live-chips {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    padding: 0 16px 14px;
+  }
+  .live-form {
+    display: flex; gap: 8px;
+    padding: 14px 16px;
+    border-top: 1px solid var(--line);
+  }
+  .flagged-head {
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--line);
+  }
+  .flagged-head h3 { font-size: 0.98rem; font-weight: 600; font-family: 'Fraunces', serif; }
+  .flagged-head p { margin-top: 4px; font-size: 0.78rem; color: var(--ink-faint); }
+  .flagged-list {
+    flex: 1;
+    min-height: 380px;
+    max-height: 480px;
+    overflow-y: auto;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .flagged-empty {
+    margin: auto;
+    text-align: center;
+    color: var(--ink-faint);
+    font-size: 0.85rem;
+    padding: 20px;
+    max-width: 26ch;
+  }
+  .flag-item {
+    border: 1px solid var(--line);
+    border-radius: var(--radius-m);
+    padding: 12px 13px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .flag-sev {
+    align-self: flex-start;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.66rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 999px;
+    font-weight: 600;
+  }
+  .flag-sev-low { background: var(--surface-sunk); color: var(--ink-faint); }
+  .flag-sev-medium { background: var(--orange-soft); color: var(--orange); }
+  .flag-sev-high { background: var(--accent); color: var(--accent-ink); }
+  .flag-sev-urgent { background: var(--ink); color: var(--bg); }
+  .flag-item .reason { font-size: 0.86rem; font-weight: 600; }
+  .flag-item .summary { font-size: 0.82rem; color: var(--ink-soft); }
+  .flag-item .flag-time { font-size: 0.7rem; color: var(--ink-faint); font-family: 'IBM Plex Mono', monospace; }
+
+  .demo-footer-cta {
+    margin-top: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-l);
+    padding: 22px 26px;
+  }
+  .demo-footer-cta p { font-size: 0.92rem; color: var(--ink-soft); max-width: 46ch; }
+
+  @media (max-width: 860px) {
+    .demo-grid { grid-template-columns: 1fr; }
+    .flagged-list, .live-messages { max-height: 320px; }
+  }
+
+  /* ---------- Assistant widget ---------- */
+  .ag-fab {
+    position: fixed;
+    right: 22px;
+    bottom: 22px;
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    background: var(--ink);
+    color: var(--accent);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent), var(--shadow);
+    z-index: 60;
+    transition: transform 0.15s ease;
+  }
+  .ag-fab:hover { transform: translateY(-2px); }
+  .ag-fab svg { width: 24px; height: 24px; }
+  .ag-fab .ag-fab-close { display: none; }
+  .ag-fab[aria-expanded="true"] .ag-fab-chat { display: none; }
+  .ag-fab[aria-expanded="true"] .ag-fab-close { display: block; }
+
+  .ag-panel {
+    position: fixed;
+    right: 22px;
+    bottom: 92px;
+    width: 372px;
+    max-width: calc(100vw - 32px);
+    height: min(560px, calc(100vh - 130px));
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-l);
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 60;
+  }
+
+  .ag-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 14px 14px 16px;
+    border-bottom: 1px solid var(--line);
+    flex: none;
+  }
+  .ag-head .logo-mark { width: 22px; height: 22px; }
+  .ag-head-text { flex: 1; min-width: 0; }
+  .ag-head-text .name { font-family: 'Fraunces', serif; font-weight: 600; font-size: 0.98rem; }
+  .ag-head-text .status {
+    font-size: 0.74rem;
+    color: var(--ink-faint);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 2px;
+  }
+  .ag-head-text .status::before {
+    content: "";
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent);
+  }
+  .ag-close {
+    border: none;
+    background: transparent;
+    color: var(--ink-faint);
+    cursor: pointer;
+    width: 30px; height: 30px;
+    border-radius: var(--radius-s);
+    display: flex; align-items: center; justify-content: center;
+    flex: none;
+  }
+  .ag-close:hover { background: var(--surface-sunk); color: var(--ink); }
+
+  .ag-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: var(--surface-sunk);
+  }
+  .ag-msg {
+    max-width: 84%;
+    padding: 9px 13px;
+    border-radius: 14px;
+    font-size: 0.87rem;
+    line-height: 1.48;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  .ag-msg-bot {
+    align-self: flex-start;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    border-bottom-left-radius: 4px;
+  }
+  .ag-msg-user {
+    align-self: flex-end;
+    background: var(--ink);
+    color: var(--bg);
+    border-bottom-right-radius: 4px;
+  }
+  .ag-thinking { color: var(--ink-faint); }
+  .ag-thinking::after {
+    content: "";
+    display: inline-block;
+    width: 4px; height: 4px;
+    margin-left: 6px;
+    border-radius: 50%;
+    background: var(--ink-faint);
+    animation: ag-pulse 1s ease-in-out infinite;
+  }
+  @keyframes ag-pulse {
+    0%, 100% { opacity: 0.25; }
+    50% { opacity: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ag-thinking::after { animation: none; opacity: 0.6; }
+  }
+
+  .ag-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    padding: 0 14px 12px;
+    flex: none;
+  }
+  .ag-chip {
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--ink-soft);
+    font-size: 0.76rem;
+    padding: 6px 11px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-family: 'Karla', sans-serif;
+  }
+  .ag-chip:hover { border-color: var(--accent); color: var(--ink); }
+
+  .ag-stop {
+    align-self: center;
+    margin: 0 0 10px;
+    font-size: 0.76rem;
+    color: var(--ink-faint);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 4px 12px;
+    cursor: pointer;
+    flex: none;
+  }
+
+  .ag-form {
+    display: flex;
+    gap: 8px;
+    padding: 12px 14px;
+    border-top: 1px solid var(--line);
+    flex: none;
+  }
+  .ag-input {
+    flex: 1;
+    min-width: 0;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-s);
+    background: var(--surface);
+    color: var(--ink);
+    font-family: 'Karla', sans-serif;
+    font-size: 0.88rem;
+  }
+  .ag-input:focus-visible { outline: 2px solid var(--orange); outline-offset: 1px; }
+  .ag-send {
+    width: 40px; height: 40px;
+    border-radius: var(--radius-s);
+    border: none;
+    background: var(--accent);
+    color: var(--accent-ink);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    flex: none;
+  }
+  .ag-send:disabled { opacity: 0.45; cursor: not-allowed; }
+  .ag-send svg { width: 17px; height: 17px; }
+  .ag-note {
+    font-size: 0.68rem;
+    color: var(--ink-faint);
+    padding: 0 14px 12px;
+    flex: none;
+  }
+
+  @media (max-width: 460px) {
+    .ag-panel { right: 16px; left: 16px; width: auto; bottom: 86px; }
+    .ag-fab { right: 16px; bottom: 16px; }
+  }
+
+  .demo-embed-wrap {
+    border: 1px solid var(--line); border-radius: var(--radius-l); overflow: hidden;
+    box-shadow: var(--shadow); height: 640px; background: var(--surface);
+  }
+  .demo-embed { width: 100%; height: 100%; border: 0; display: block; }
+  .demo-embed-note { margin: 10px 0 0; font-size: 0.82rem; color: var(--ink-faint); text-align: center; }
+  @media (max-width: 860px) { .demo-embed-wrap { height: 560px; } }
+
+</style>
+
+<div id="site-view">
+<header>
+  <a class="logo" href="#top">
+    <span class="logo-mark"></span>
+    adjustglow
+  </a>
+  <nav class="links">
+    <a href="#services">Services</a>
+    <a href="#how-it-works">How it works</a>
+    <a href="#reviews">Reviews</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#faq">FAQ</a>
+    <a href="#live-demo">Live demo</a>
+  </nav>
+  <div class="nav-cta">
+    <a class="btn btn-ghost" href="#contact">Contact</a>
+    <a class="btn btn-primary" href="#contact">Book a demo</a>
+  </div>
+</header>
+
+<section class="hero" id="top">
+  <div>
+    <span class="eyebrow">Outsourced support · Review syndication</span>
+    <h1>Every support ticket you close is <em>a five-star review waiting to happen.</em></h1>
+    <p class="hero-sub">Adjustglow runs live chat, email and phone support for your business — then turns happy conversations into reviews that publish straight to your site, Google Business Profile and Trustpilot.</p>
+    <div class="hero-cta">
+      <a class="btn btn-primary" href="#contact">Book a demo</a>
+      <a class="btn btn-ghost" href="#how-it-works">See how it works</a>
+    </div>
+    <div class="hero-meta">
+      <span><span class="dot"></span> Under 2 min target first response</span>
+      <span><span class="dot"></span> Human agents, 24/5 coverage</span>
+      <span><span class="dot"></span> Syncs to Google &amp; Trustpilot</span>
+    </div>
+  </div>
+
+  <div class="demo-card" role="img" aria-label="Diagram of a resolved support ticket becoming a synced customer review">
+    <div class="demo-head">
+      <span class="mono">TICKET #4127</span>
+      <span class="mono">RESOLVED · 00:03:41</span>
+    </div>
+    <div class="demo-row">
+      <div class="avatar">MK</div>
+      <div class="body">
+        <div class="label">Maren K. · customer</div>
+        “The replacement part shipped same day — didn't expect that fast a fix.”
+      </div>
+    </div>
+    <div class="demo-arrow">↓ agent closes ticket, review request sent automatically</div>
+    <div class="demo-row">
+      <div class="avatar" style="background: var(--surface); border: 1px solid var(--line); color: var(--accent-deep);">★</div>
+      <div class="body">
+        <div class="label">Review left on your Adjustglow page</div>
+        “Fast, friendly, and they actually solved it. 5/5.”
+      </div>
+    </div>
+    <div class="demo-arrow">↓ synced automatically</div>
+    <div class="demo-sync">
+      <div class="sync-badge"><span class="stars">★★★★★</span><span class="ok">Google ✓</span></div>
+      <div class="sync-badge"><span class="stars">★★★★★</span><span class="ok">Trustpilot ✓</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="services">
+  <div class="band-head">
+    <span class="eyebrow">Services</span>
+    <h2>Support coverage that feels in-house, run by us.</h2>
+    <p>Pick the channels your customers actually use — we staff, script and manage them under your brand.</p>
+  </div>
+  <div class="grid-4">
+    <div class="service-card">
+      <div class="service-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5z"></path></svg></div>
+      <h3>Live chat &amp; email</h3>
+      <p>Trained agents answer under your brand voice, with your macros and knowledge base kept up to date.</p>
+    </div>
+    <div class="service-card">
+      <div class="service-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3c1 2 1.5 3.5 1.5 5L5 10c1.2 3.6 3.7 6.1 7.3 7.3l2.2-2.5c1.5 0 3 .5 5 1.5v3.2c0 1-.8 1.6-1.8 1.5C9.8 20 4 14.2 3.5 6.8 3.4 5.8 4 5 5 5z"></path></svg></div>
+      <h3>Phone support</h3>
+      <p>A dedicated line or overflow coverage for your existing number, with call recordings and QA scoring.</p>
+    </div>
+    <div class="service-card">
+      <div class="service-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9a2 2 0 0 0 0 6v3a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1v-3a2 2 0 0 1 0-6V6a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v3z"></path><path d="M13 5.5v13"></path></svg></div>
+      <h3>Helpdesk &amp; ticketing</h3>
+      <p>We work inside the helpdesk you already use, or set one up — full audit trail on every conversation.</p>
+    </div>
+    <div class="service-card">
+      <div class="service-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.2 5.6L20 10l-4.6 3.6L16.6 20 12 16.6 7.4 20l1.2-6.4L4 10l5.8-1.4z"></path></svg></div>
+      <h3>Review capture &amp; sync</h3>
+      <p>Every resolved ticket triggers a review request; approved reviews publish to Google and Trustpilot for you.</p>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="how-it-works">
+  <div class="band-head">
+    <span class="eyebrow">How it works</span>
+    <h2>From "ticket opened" to "review posted," in one flow.</h2>
+    <p>No separate review tool to manage — it's built into the same conversation your agent is already having.</p>
+  </div>
+  <div class="flow">
+    <div class="step">
+      <div class="num">1</div>
+      <h3>Customer reaches out</h3>
+      <p>Chat, email or phone — routed to an Adjustglow agent briefed on your product.</p>
+    </div>
+    <div class="step">
+      <div class="num">2</div>
+      <h3>We resolve it</h3>
+      <p>Agent works the ticket to close, logged with resolution notes in your helpdesk.</p>
+    </div>
+    <div class="step">
+      <div class="num">3</div>
+      <h3>Feedback is requested</h3>
+      <p>A short, on-brand prompt asks the customer to rate the interaction.</p>
+    </div>
+    <div class="step">
+      <div class="num">4</div>
+      <h3>Review is posted</h3>
+      <p>Positive reviews go live on your branded review page instantly.</p>
+    </div>
+    <div class="step">
+      <div class="num">5</div>
+      <h3>It syncs everywhere</h3>
+      <p>Adjustglow submits the same review to Google Business Profile and Trustpilot.</p>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="reviews">
+  <div class="spotlight">
+    <div class="spotlight-copy">
+      <span class="eyebrow">Review syndication</span>
+      <h2 style="font-size: clamp(1.5rem, 2.2vw, 1.9rem); margin-top: 12px;">One review, submitted where buyers actually look.</h2>
+      <p>Most review tools stop at collecting a star rating. Adjustglow's sync engine takes it further — the same verified review is formatted and submitted to the platforms that shape whether someone chooses you.</p>
+      <ul class="spotlight-list">
+        <li>Reviews route only after a resolved, verified support interaction</li>
+        <li>You approve the review policy — what qualifies, what's held for follow-up</li>
+        <li>Google Business Profile and Trustpilot submissions handled for you</li>
+        <li>One dashboard shows every review, wherever it ended up posted</li>
+      </ul>
+    </div>
+    <svg class="diagram" viewBox="0 0 520 220" role="img" aria-label="Flow diagram: your review page feeds the Adjustglow sync engine, which submits to Google Reviews and Trustpilot">
+      <defs>
+        <marker id="arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M0,0 L8,4 L0,8 z" fill="var(--ink-faint)"></path>
+        </marker>
+      </defs>
+      <g font-family="IBM Plex Mono, monospace" font-size="12" fill="var(--ink-soft)">
+        <rect x="16" y="88" width="140" height="52" rx="8" fill="var(--surface-sunk)" stroke="var(--line)"></rect>
+        <text x="86" y="110" text-anchor="middle" fill="var(--ink)" font-weight="600" font-family="Karla, sans-serif" font-size="13">Your review</text>
+        <text x="86" y="127" text-anchor="middle" font-family="Karla, sans-serif" font-size="13" fill="var(--ink)">page</text>
+
+        <line x1="156" y1="114" x2="206" y2="114" stroke="var(--ink-faint)" stroke-width="1.5" marker-end="url(#arrow)"></line>
+
+        <rect x="208" y="78" width="150" height="72" rx="8" fill="var(--orange-soft)" stroke="var(--orange)"></rect>
+        <text x="283" y="108" text-anchor="middle" fill="var(--orange)" font-weight="700" font-family="Karla, sans-serif" font-size="13">Adjustglow</text>
+        <text x="283" y="126" text-anchor="middle" fill="var(--orange)" font-family="Karla, sans-serif" font-size="13">sync engine</text>
+        <text x="283" y="142" text-anchor="middle" font-size="10" letter-spacing="0.06em">VERIFIED · FORMATTED</text>
+
+        <line x1="358" y1="98" x2="404" y2="60" stroke="var(--ink-faint)" stroke-width="1.5" marker-end="url(#arrow)"></line>
+        <line x1="358" y1="130" x2="404" y2="168" stroke="var(--ink-faint)" stroke-width="1.5" marker-end="url(#arrow)"></line>
+
+        <rect x="406" y="30" width="98" height="52" rx="8" fill="var(--surface)" stroke="var(--line)"></rect>
+        <text x="455" y="52" text-anchor="middle" fill="var(--ink)" font-weight="600" font-family="Karla, sans-serif" font-size="12.5">Google</text>
+        <text x="455" y="68" text-anchor="middle" fill="var(--ink)" font-family="Karla, sans-serif" font-size="12.5">Reviews</text>
+
+        <rect x="406" y="140" width="98" height="52" rx="8" fill="var(--surface)" stroke="var(--line)"></rect>
+        <text x="455" y="162" text-anchor="middle" fill="var(--ink)" font-weight="600" font-family="Karla, sans-serif" font-size="12.5">Trustpilot</text>
+        <text x="455" y="178" text-anchor="middle" fill="var(--accent-deep)" font-family="IBM Plex Mono, monospace" font-size="11">★★★★★</text>
+      </g>
+    </svg>
+  </div>
+</section>
+
+<section class="band" id="pricing">
+  <div class="band-head">
+    <span class="eyebrow">Pricing</span>
+    <h2>Plans that scale with ticket volume, not headcount guesses.</h2>
+    <p>Every plan includes review capture and syndication. Draft pricing below — happy to size a plan to your ticket volume.</p>
+  </div>
+  <div class="grid-3">
+    <div class="price-card">
+      <h3>Starter</h3>
+      <div class="amount">$490<span>/mo</span></div>
+      <p class="desc">For small teams handling under 300 tickets a month.</p>
+      <ul>
+        <li>Live chat &amp; email support</li>
+        <li>Up to 300 tickets / month</li>
+        <li>Review capture &amp; syndication</li>
+        <li>Shared inbox during business hours</li>
+      </ul>
+      <a class="btn btn-ghost" href="#contact">Talk to us</a>
+    </div>
+    <div class="price-card featured">
+      <span class="price-tag">Most chosen</span>
+      <h3>Growth</h3>
+      <div class="amount">$1,150<span>/mo</span></div>
+      <p class="desc">For growing businesses adding phone support and coverage hours.</p>
+      <ul>
+        <li>Live chat, email &amp; phone support</li>
+        <li>Up to 1,200 tickets / month</li>
+        <li>Review capture &amp; syndication</li>
+        <li>Extended coverage, 6 days/week</li>
+        <li>Monthly QA &amp; reporting review</li>
+      </ul>
+      <a class="btn btn-accent" href="#contact">Book a demo</a>
+    </div>
+    <div class="price-card">
+      <h3>Scale</h3>
+      <div class="amount">Custom</div>
+      <p class="desc">For businesses with high ticket volume or multiple brands.</p>
+      <ul>
+        <li>All channels, dedicated agent pod</li>
+        <li>Volume-based, uncapped tickets</li>
+        <li>Priority review sync &amp; escalation rules</li>
+        <li>Dedicated account manager</li>
+      </ul>
+      <a class="btn btn-ghost" href="#contact">Get a quote</a>
+    </div>
+  </div>
+  <p class="price-note">Prices shown are starting estimates and will be finalized with you before onboarding.</p>
+</section>
+
+<section class="band" id="faq">
+  <div class="band-head">
+    <span class="eyebrow">FAQ</span>
+    <h2>Questions we get before signing up.</h2>
+  </div>
+  <div class="faq">
+    <div class="faq-item">
+      <h3>Which review platforms do you support?</h3>
+      <p>Google Business Profile and Trustpilot are supported at launch, submitted automatically once a review is approved under your review policy. Additional platforms can be scoped on request.</p>
+    </div>
+    <div class="faq-item">
+      <h3>Are conversations handled by people or by a bot?</h3>
+      <p>Trained human agents handle every conversation. A bot can triage and answer simple, repetitive questions if you want it, but it's always your call which parts stay human.</p>
+    </div>
+    <div class="faq-item">
+      <h3>What happens if a customer leaves a negative review?</h3>
+      <p>You set the policy: some businesses publish everything as-is, others route low ratings to a private follow-up first so the issue can be resolved before anything goes public. Nothing is filtered without your rules in place.</p>
+    </div>
+    <div class="faq-item">
+      <h3>Can we customize the review request message and timing?</h3>
+      <p>Yes — wording, timing after resolution, and which channels trigger a request are all configurable per business.</p>
+    </div>
+    <div class="faq-item">
+      <h3>How fast can we get set up?</h3>
+      <p>Most businesses are live on chat and email within a week; phone support and full review syndication typically follow in the second week once your review policy is confirmed.</p>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="contact" style="border-bottom: none;">
+  <div class="cta-band">
+    <h2>Ready to make good service impossible to miss?</h2>
+    <div style="display:flex; gap:12px; flex-wrap:wrap;">
+      <a class="btn btn-ghost" href="#live-demo" style="border-color: var(--bg); color: var(--bg);">Try the live AI demo</a>
+      <a class="btn btn-accent" href="mailto:hello@adjustglow.com">Book a demo</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="foot-top">
+    <div class="foot-brand">
+      <a class="logo" href="#top"><span class="logo-mark"></span>adjustglow</a>
+      <p>Outsourced customer service that turns resolved tickets into reviews — published to your site, Google and Trustpilot.</p>
+    </div>
+    <div class="foot-col">
+      <h4>Product</h4>
+      <a href="#services">Services</a>
+      <a href="#how-it-works">How it works</a>
+      <a href="#reviews">Review syndication</a>
+      <a href="#pricing">Pricing</a>
+    </div>
+    <div class="foot-col">
+      <h4>Company</h4>
+      <a href="#faq">FAQ</a>
+      <a href="mailto:hello@adjustglow.com">Contact</a>
+    </div>
+    <div class="foot-col">
+      <h4>Get in touch</h4>
+      <a href="mailto:hello@adjustglow.com">hello@adjustglow.com</a>
+      <a href="#top">Book a demo</a>
+    </div>
+  </div>
+  <div class="foot-bottom">
+    <span>© 2026 Adjustglow. All rights reserved.</span>
+    <span class="mono">DRAFT SITE</span>
+  </div>
+</footer>
+
+<button class="ag-fab" id="ag-fab" type="button" aria-expanded="false" aria-controls="ag-panel" aria-label="Chat with the Adjustglow Assistant">
+  <svg class="ag-fab-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5z"></path></svg>
+  <svg class="ag-fab-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+</button>
+
+<section class="ag-panel" id="ag-panel" hidden role="dialog" aria-label="Adjustglow Assistant chat">
+  <div class="ag-head">
+    <span class="logo-mark"></span>
+    <div class="ag-head-text">
+      <div class="name">Adjustglow Assistant</div>
+      <div class="status">AI-powered · usually replies in seconds</div>
+    </div>
+    <button class="ag-close" id="ag-close" type="button" aria-label="Close chat">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+    </button>
+  </div>
+
+  <div class="ag-messages" id="ag-messages" aria-live="polite">
+    <div class="ag-msg ag-msg-bot">Hi, I'm the Adjustglow Assistant. Ask me about our support plans, pricing, or how review syncing to Google &amp; Trustpilot works.</div>
+  </div>
+
+  <button class="ag-stop" id="ag-stop" type="button" hidden>Stop</button>
+
+  <div class="ag-chips" id="ag-chips">
+    <button class="ag-chip" type="button" data-chip>What's included in Growth?</button>
+    <button class="ag-chip" type="button" data-chip>How does review syncing work?</button>
+    <button class="ag-chip" type="button" data-chip>How fast can we get set up?</button>
+  </div>
+
+  <form class="ag-form" id="ag-form">
+    <input class="ag-input" id="ag-input" type="text" placeholder="Ask about plans, pricing, reviews…" autocomplete="off" aria-label="Message">
+    <button class="ag-send" id="ag-send" type="submit" disabled aria-label="Send">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l16-8-6 16-2.5-6.5L4 12z"></path></svg>
+    </button>
+  </form>
+  <p class="ag-note">AI-generated answers. For contracts or custom quotes, email <a href="mailto:hello@adjustglow.com">hello@adjustglow.com</a>.</p>
+</section>
+
+<script>
+(function () {
+  var RULES = [
+    "You are the Adjustglow Assistant, embedded on Adjustglow's own marketing site.",
+    "Adjustglow provides outsourced customer service (live chat, email, phone, helpdesk/ticketing) for other businesses, and captures customer reviews from resolved support conversations, syndicating them automatically to Google Business Profile and Trustpilot.",
+    "People chatting with you are almost always business owners or managers evaluating whether to hire Adjustglow for their own customer support and review management.",
+    "Facts you can rely on: Plans are Starter ($490/mo, up to 300 tickets/month, live chat & email, business-hours coverage), Growth ($1,150/mo, up to 1,200 tickets/month, live chat + email + phone, 6-day coverage, monthly QA/reporting review, marked 'most chosen'), and Scale (custom pricing, all channels, dedicated agent pod, uncapped volume, dedicated account manager). All plans include review capture and syndication to Google Business Profile and Trustpilot. Typical onboarding: chat & email live within about a week; phone support and full review syncing follow in the second week once the business's review policy is confirmed. Review policy (what qualifies, what's held for follow-up) is always set by the client business, not Adjustglow. Human agents handle every conversation; a bot can triage simple repetitive questions if the client wants that. Pricing shown on the site are starting estimates finalized before onboarding.",
+    "Answer questions about services, pricing, how review syncing works, onboarding timeline, and general customer-service-outsourcing questions, in a warm, confident, plain-spoken tone with no corporate fluff. Keep answers short — a few sentences, not an essay — unless asked for detail.",
+    "For anything needing a real quote, contract terms, or specifics you're not sure of, tell them to book a demo or email hello@adjustglow.com rather than guessing.",
+    "You are not a general-purpose assistant: if asked something unrelated to Adjustglow or customer support, briefly decline and steer back to how Adjustglow can help their business."
+  ].join("\n\n");
+
+  var turns = [{ role: "user", content: RULES }];
+  var samplePromise = null;
+  var busy = false;
+  var ctl = null;
+
+  var fab = document.getElementById("ag-fab");
+  var panel = document.getElementById("ag-panel");
+  var messagesEl = document.getElementById("ag-messages");
+  var formEl = document.getElementById("ag-form");
+  var inputEl = document.getElementById("ag-input");
+  var sendBtn = document.getElementById("ag-send");
+  var closeBtn = document.getElementById("ag-close");
+  var chipsEl = document.getElementById("ag-chips");
+  var stopBtn = document.getElementById("ag-stop");
+
+  function getSample() {
+    if (!samplePromise) {
+      samplePromise = (window.claude && window.claude.use)
+        ? window.claude.use("sample").catch(function () { return null; })
+        : Promise.resolve(null);
+    }
+    return samplePromise;
+  }
+  getSample();
+
+  function openPanel() {
+    panel.hidden = false;
+    fab.setAttribute("aria-expanded", "true");
+    inputEl.focus();
+  }
+  function closePanel() {
+    panel.hidden = true;
+    fab.setAttribute("aria-expanded", "false");
+  }
+  fab.addEventListener("click", function () {
+    if (panel.hidden) { openPanel(); } else { closePanel(); }
+  });
+  closeBtn.addEventListener("click", closePanel);
+
+  function addBubble(role, text) {
+    var div = document.createElement("div");
+    div.className = "ag-msg " + (role === "user" ? "ag-msg-user" : "ag-msg-bot");
+    div.textContent = text;
+    messagesEl.appendChild(div);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+    return div;
+  }
+
+  function setBusy(state) {
+    busy = state;
+    sendBtn.disabled = state || !inputEl.value.trim();
+    inputEl.disabled = state;
+    stopBtn.hidden = !state;
+  }
+
+  function sendMessage(raw) {
+    var text = (raw || "").trim();
+    if (!text || busy) { return; }
+    chipsEl.hidden = true;
+    addBubble("user", text);
+    turns.push({ role: "user", content: text });
+    if (turns.length > 13) { turns = [turns[0]].concat(turns.slice(turns.length - 12)); }
+    inputEl.value = "";
+    setBusy(true);
+
+    getSample().then(function (sample) {
+      if (!sample) {
+        addBubble("bot", "This assistant isn't available right now — email hello@adjustglow.com and we'll get right back to you.");
+        setBusy(false);
+        return;
+      }
+
+      var thinking = addBubble("bot", "Thinking…");
+      thinking.classList.add("ag-thinking");
+      ctl = new AbortController();
+
+      sample(turns, {
+        modelTier: "quick",
+        cache: false,
+        signal: ctl.signal,
+        onText: function (update) {
+          thinking.classList.remove("ag-thinking");
+          thinking.textContent = update.text;
+          messagesEl.scrollTop = messagesEl.scrollHeight;
+        }
+      }).then(function (result) {
+        thinking.classList.remove("ag-thinking");
+        thinking.textContent = result.text;
+        turns.push({ role: "assistant", content: result.text });
+      }).catch(function (e) {
+        var code = e && e.code;
+        thinking.classList.remove("ag-thinking");
+        if (code === "cancelled") {
+          thinking.textContent = e.text || "Stopped.";
+        } else if (code === "not_granted") {
+          thinking.textContent = "Looks like this page isn't allowed to use Claude for you right now — email hello@adjustglow.com and a real human will help.";
+        } else if (code === "rate_limited") {
+          thinking.textContent = "We're getting a lot of questions right now — give it a moment and try again.";
+        } else if (code === "refused" || code === "empty_completion") {
+          thinking.textContent = "Could you rephrase that? I want to make sure I answer the right question.";
+        } else {
+          thinking.textContent = (e && e.text) ? e.text : "Something went wrong on my end — mind trying again, or emailing hello@adjustglow.com?";
+        }
+      }).finally(function () {
+        setBusy(false);
+        ctl = null;
+      });
+    });
+  }
+
+  formEl.addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    sendMessage(inputEl.value);
+  });
+  inputEl.addEventListener("input", function () {
+    sendBtn.disabled = busy || !inputEl.value.trim();
+  });
+  stopBtn.addEventListener("click", function () {
+    if (ctl) { ctl.abort(); }
+  });
+  Array.prototype.forEach.call(chipsEl.querySelectorAll("[data-chip]"), function (btn) {
+    btn.addEventListener("click", function () { sendMessage(btn.textContent); });
+  });
+})();
+</script>
+</div>
+
+</head>
+<body>
+<div id="demo-view" hidden>
+  <div class="demo-topbar">
+    <a class="logo" href="#top"><span class="logo-mark"></span>adjustglow</a>
+    <a class="back-link" href="#top">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"></path></svg>
+      Back to the site
+    </a>
+  </div>
+
+  <div class="demo-intro">
+    <span class="eyebrow">Live demo</span>
+    <h1 style="margin-top:12px;">See the AI-only support agent in action.</h1>
+    <p>This is a real, working agent — the same kind Adjustglow builds for clients — answering as <strong>Lumen Cycles</strong>, a fictional bike shop, so you can see the whole experience: no human agents, answers grounded in a real policy document, and automatic flagging the moment something needs a specialist.</p>
+    <span class="demo-persona">🚲 Standing in for: Lumen Cycles — online bike &amp; e-bike shop</span>
+  </div>
+
+  <div class="demo-main">
+    <div class="demo-embed-wrap">
+      <iframe
+        class="demo-embed"
+        src="https://adjustglow-support-agent.onrender.com/agent.html"
+        title="Live Lumen Cycles support agent"
+        loading="lazy"
+      ></iframe>
+    </div>
+    <p class="demo-embed-note">
+      Running on its own server, answering with real AI — not a script. First message after a quiet
+      period can take up to a minute while the free-tier instance wakes up.
+    </p>
+
+    <div class="demo-footer-cta">
+      <p>Want an AI-only agent like this — grounded in your own policies, with escalation rules you set — answering your customers?</p>
+      <a class="btn btn-accent" href="mailto:hello@adjustglow.com">Book a demo</a>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var siteView = document.getElementById("site-view");
+  var demoView = document.getElementById("demo-view");
+
+  function route() {
+    var onDemo = location.hash === "#live-demo";
+    siteView.hidden = onDemo;
+    demoView.hidden = !onDemo;
+    if (onDemo) { window.scrollTo(0, 0); }
+  }
+  window.addEventListener("hashchange", route);
+  route();
+})();
+</script>
+
+</body>
+</html>
