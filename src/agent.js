@@ -20,7 +20,7 @@ const TOOLS = [
   {
     name: "flag_for_review",
     description:
-      "Log this conversation for a human specialist to look at later. Use it for refund/goodwill requests over $500, legal threats or chargebacks, injury or safety reports, abusive language, an issue repeating a third time unresolved, or anything the knowledge base doesn't clearly cover. Flagging does NOT end the conversation — after calling this, keep responding to the customer normally.",
+      "Log this conversation for a human specialist to look at later. Use it for refund/goodwill requests over 5000 SEK, legal threats or chargebacks, injury or safety reports, abusive language, an issue repeating a third time unresolved, or anything the knowledge base doesn't clearly cover. Flagging does NOT end the conversation — after calling this, keep responding to the customer normally.",
     input_schema: {
       type: "object",
       properties: {
@@ -46,20 +46,20 @@ const TOOLS = [
 function buildSystemPrompt(channel) {
   const channelNote =
     channel === "email"
-      ? `You are replying by email. Write a complete reply: a brief greeting, the answer, and a sign-off from "${BUSINESS_NAME} Support". Do not include a subject line, just the body.`
-      : "You are replying in live chat. Keep replies short and conversational — a few sentences, not an essay.";
+      ? `Du svarar via e-post. Skriv ett komplett svar: en kort hälsning, svaret, och en avslutning från "${BUSINESS_NAME} Support". Skriv ingen ämnesrad, bara brödtexten.`
+      : "Du svarar i en livechatt. Håll svaren korta och samtalsvänliga — några meningar, inte en uppsats.";
 
-  return `You are the AI customer support agent for ${BUSINESS_NAME}. There are no human agents on this channel today — you are the entire support experience for every message that comes through here. Always speak as "${BUSINESS_NAME}", first person plural ("we"), warm, plain-spoken, and confident. Never invent policy: only use what's in the knowledge base below. If something isn't covered, say so honestly instead of guessing, and consider flagging it.
+  return `Du är AI-kundsupportagenten för ${BUSINESS_NAME}. Det finns inga mänskliga agenter i den här kanalen idag — du är hela supportupplevelsen för varje meddelande som kommer in här. Svara alltid på svenska, oavsett vilket språk kunden skriver på, om inte kunden uttryckligen ber om ett annat språk. Tala alltid som "${BUSINESS_NAME}", i första person plural ("vi"), varmt, rakt på sak och självsäkert. Hitta aldrig på policy: använd bara det som står i kunskapsbasen nedan. Om något inte täcks, säg det ärligt istället för att gissa, och överväg att flagga det.
 
 ${channelNote}
 
---- KNOWLEDGE BASE (the only source of truth for policy, shipping, returns, warranty, orders) ---
+--- KUNSKAPSBAS (den enda källan till sanning för policy, frakt, returer, garanti, ordrar) ---
 ${KNOWLEDGE_BASE}
---- END KNOWLEDGE BASE ---
+--- SLUT PÅ KUNSKAPSBAS ---
 
-Use the flag_for_review tool exactly as instructed in the "When to flag for a human specialist" section above. Flagging is a note for follow-up, not a hand-off: keep helping the customer in the same reply after you flag something.
+Använd verktyget flag_for_review exakt enligt instruktionerna i avsnittet "När du ska flagga för en mänsklig specialist" ovan. Att flagga är en anteckning för uppföljning, inte en överlämning: fortsätt hjälpa kunden i samma svar efter att du flaggat något.
 
-If a customer directly asks whether they're talking to a human or an AI, or asks to speak to a person, be honest: support here is AI-handled, you're flagging anything that needs a specialist, and give them the escalation contact from the knowledge base as the alternative. Don't volunteer that you're an AI unprompted.`;
+Om en kund direkt frågar om de pratar med en människa eller en AI, eller ber om att få prata med en person, var ärlig: supporten här sköts av AI, du flaggar allt som behöver en specialist, och ge dem eskaleringskontakten från kunskapsbasen som alternativ. Berätta inte oombedd att du är en AI.`;
 }
 
 /**
@@ -143,7 +143,7 @@ export async function runTurn({ channel, history, userMessage, onFlag }) {
 
   if (!finalText) {
     finalText =
-      "Thanks for reaching out — could you tell me a bit more about what you need help with?";
+      "Tack för att du hör av dig — kan du berätta lite mer om vad du behöver hjälp med?";
   }
 
   return { reply: finalText, flags };

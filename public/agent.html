@@ -1,121 +1,113 @@
 <!doctype html>
-<html lang="en">
+<html lang="sv">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lumen Cycles Support — powered by Adjustglow</title>
+<title>Lumen Cycles Support — drivs av Adjustglow</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Karla:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Karla:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --ink: #17140F; --bg: #FAF8F4; --surface: #FFFFFF; --surface-sunk: #F1EEE6;
-    --line: #E7E1D4; --accent: #E7A926; --accent-deep: #C98F16; --accent-ink: #251801;
-    --orange: #D9581B; --orange-soft: #FBEADD; --ink-soft: #5A5245; --ink-faint: #948B79;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      --ink: #F3EFE4; --bg: #0A0907; --surface: #17140F; --surface-sunk: #1F1B14;
-      --line: #322B1F; --accent: #F0BB3E; --accent-deep: #F0BB3E; --accent-ink: #1B1200;
-      --orange: #FF7A33; --orange-soft: #2B1B10; --ink-soft: #C8BFA9; --ink-faint: #8A8168;
-    }
-  }
-  :root[data-theme="dark"] {
-    --ink: #F3EFE4; --bg: #0A0907; --surface: #17140F; --surface-sunk: #1F1B14;
-    --line: #322B1F; --accent: #F0BB3E; --accent-deep: #F0BB3E; --accent-ink: #1B1200;
-    --orange: #FF7A33; --orange-soft: #2B1B10; --ink-soft: #C8BFA9; --ink-faint: #8A8168;
+    --bg: #0B0805; --surface: #17110A; --surface-2: #1D160C; --surface-sunk: #0E0A06;
+    --line: #2C2314; --line-bright: #453419;
+    --accent: #E8AC2E; --accent-bright: #F7CB5E; --accent-ink: #1C1300;
+    --orange: #E2632A; --orange-bright: #F0824E; --orange-soft: #2C160A;
+    --ink: #F5EFE0; --ink-soft: #C9BEA4; --ink-faint: #857A61;
   }
   * { box-sizing: border-box; }
+  ::selection { background: var(--accent); color: var(--accent-ink); }
   body {
-    margin: 0; background: var(--bg); color: var(--ink);
+    margin: 0;
+    background:
+      radial-gradient(900px 460px at 85% -10%, rgba(232,172,46,0.10), transparent 60%),
+      var(--bg);
+    color: var(--ink);
     font-family: Karla, ui-sans-serif, system-ui, sans-serif;
     min-height: 100vh; display: flex; flex-direction: column; align-items: center;
-    padding: 28px 16px 48px;
+    padding: 30px 16px 48px;
   }
   .topbar {
     width: 100%; max-width: 640px; display: flex; align-items: center; gap: 10px;
-    margin-bottom: 22px;
+    margin-bottom: 24px;
   }
   .dot {
     width: 26px; height: 26px; border-radius: 50%;
-    background: radial-gradient(circle at 32% 28%, var(--accent), var(--orange) 78%);
+    background: radial-gradient(circle at 32% 28%, var(--accent-bright), var(--orange) 78%);
+    box-shadow: 0 0 0 1px var(--line-bright), 0 0 18px 1px rgba(232,172,46,0.3);
     flex-shrink: 0;
   }
-  .brand { font-family: Fraunces, serif; font-weight: 600; font-size: 1.05rem; letter-spacing: -0.01em; }
+  .brand { font-family: Fraunces, serif; font-weight: 600; font-size: 1.08rem; letter-spacing: -0.01em; }
   .badge {
-    margin-left: auto; font-family: "IBM Plex Mono", monospace; font-size: 0.68rem;
-    letter-spacing: 0.06em; text-transform: uppercase; color: var(--orange);
-    background: var(--orange-soft); border: 1px solid var(--orange); border-radius: 999px;
+    margin-left: auto; font-size: 0.68rem;
+    letter-spacing: 0.06em; text-transform: uppercase; color: var(--orange-bright);
+    background: var(--orange-soft); border: 1px solid var(--line-bright); border-radius: 999px;
     padding: 4px 10px;
   }
   .panel {
-    width: 100%; max-width: 640px; background: var(--surface); border: 1px solid var(--line);
-    border-radius: 16px; overflow: hidden; box-shadow: 0 18px 40px -24px rgba(23,20,15,0.35);
+    width: 100%; max-width: 640px; background: var(--surface); border: 1px solid var(--line-bright);
+    border-radius: 18px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.4), 0 28px 60px -24px rgba(0,0,0,0.75);
     display: flex; flex-direction: column;
   }
-  .panel-head {
-    padding: 16px 20px; border-bottom: 1px solid var(--line);
-  }
-  .panel-head h1 { font-family: Fraunces, serif; font-size: 1.15rem; margin: 0 0 3px; font-weight: 600; }
-  .panel-head p { margin: 0; font-size: 0.82rem; color: var(--ink-soft); }
-  .panel-head p .live {
-    display: inline-flex; align-items: center; gap: 5px; color: var(--orange); font-weight: 600;
-  }
-  .panel-head p .live::before {
-    content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--orange);
-  }
+  .panel-head { padding: 17px 20px; border-bottom: 1px solid var(--line); }
+  .panel-head h1 { font-family: Fraunces, serif; font-size: 1.18rem; margin: 0 0 3px; font-weight: 600; }
+  .panel-head p { margin: 0; font-size: 0.83rem; color: var(--ink-soft); }
+  .panel-head p .live { display: inline-flex; align-items: center; gap: 6px; color: var(--accent-bright); font-weight: 600; }
+  .panel-head p .live::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 3px rgba(232,172,46,0.2); }
   #messages {
     height: 420px; overflow-y: auto; background: var(--surface-sunk);
     padding: 16px; display: flex; flex-direction: column; gap: 10px;
   }
-  .msg { max-width: 82%; padding: 10px 13px; border-radius: 12px; font-size: 0.92rem; line-height: 1.45; white-space: pre-wrap; }
-  .msg.user { align-self: flex-end; background: var(--ink); color: var(--bg); border-bottom-right-radius: 4px; }
+  .msg { max-width: 82%; padding: 10px 13px; border-radius: 13px; font-size: 0.92rem; line-height: 1.45; white-space: pre-wrap; }
+  .msg.user { align-self: flex-end; background: var(--accent); color: var(--accent-ink); border-bottom-right-radius: 4px; }
   .msg.bot { align-self: flex-start; background: var(--surface); border: 1px solid var(--line); border-bottom-left-radius: 4px; }
   .msg.typing { align-self: flex-start; color: var(--ink-faint); font-style: italic; background: transparent; border: none; padding: 4px 13px; }
-  .msg.error { align-self: center; color: var(--orange); background: var(--orange-soft); border: 1px solid var(--orange); font-size: 0.82rem; }
-  form {
-    display: flex; gap: 8px; padding: 14px 16px; border-top: 1px solid var(--line); background: var(--surface);
-  }
+  .msg.error { align-self: center; color: var(--orange-bright); background: var(--orange-soft); border: 1px solid var(--line-bright); font-size: 0.82rem; }
+  form { display: flex; gap: 8px; padding: 15px 16px; border-top: 1px solid var(--line); background: var(--surface); }
   input {
-    font: inherit; font-size: 0.92rem; border: 1px solid var(--line); border-radius: 10px;
+    font: inherit; font-size: 0.92rem; border: 1px solid var(--line-bright); border-radius: 10px;
     padding: 11px 13px; background: var(--surface-sunk); color: var(--ink); width: 100%;
   }
-  input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
   button {
     font: inherit; font-weight: 600; border: none; border-radius: 10px; padding: 0 20px;
     background: var(--accent); color: var(--accent-ink); cursor: pointer; flex-shrink: 0;
   }
+  button:hover { background: var(--accent-bright); }
   button:disabled { opacity: 0.5; cursor: not-allowed; }
   .foot {
-    max-width: 640px; width: 100%; margin-top: 14px; font-size: 0.76rem; color: var(--ink-faint);
+    max-width: 640px; width: 100%; margin-top: 16px; font-size: 0.76rem; color: var(--ink-faint);
     text-align: center;
   }
-  .foot a { color: var(--orange); }
+  .foot a { color: var(--orange-bright); }
+  ::-webkit-scrollbar { width: 10px; }
+  ::-webkit-scrollbar-track { background: var(--surface-sunk); }
+  ::-webkit-scrollbar-thumb { background: var(--line-bright); border-radius: 999px; }
 </style>
 </head>
 <body>
   <div class="topbar">
     <div class="dot"></div>
     <div class="brand">Lumen Cycles</div>
-    <div class="badge">AI-only support</div>
+    <div class="badge">Endast AI-support</div>
   </div>
 
   <div class="panel">
     <div class="panel-head">
-      <h1>Support chat</h1>
-      <p><span class="live">Answering live</span> — every reply here is generated in real time, no human agents on this channel.</p>
+      <h1>Supportchatt</h1>
+      <p><span class="live">Svarar direkt</span> — varje svar här genereras i realtid, inga mänskliga agenter i den här kanalen.</p>
     </div>
     <div id="messages"></div>
     <form id="chat-form">
-      <input id="chat-input" placeholder="Ask about shipping, returns, warranty, your order…" autocomplete="off">
-      <button id="chat-send" type="submit">Send</button>
+      <input id="chat-input" placeholder="Fråga om frakt, returer, garanti, din order…" autocomplete="off">
+      <button id="chat-send" type="submit">Skicka</button>
     </form>
   </div>
 
   <p class="foot">
-    This is a real, working deployment of the AI-only support agent — the same engine
-    <a href="https://adjustglow.com" target="_blank" rel="noopener">Adjustglow</a> builds for client
-    businesses, answering here as a fictional demo shop, Lumen Cycles.
+    Det här är en riktig, fungerande installation av AI-only-supportagenten — samma motor som
+    <a href="https://adjustglow.com" target="_blank" rel="noopener">Adjustglow</a> bygger åt kundföretag,
+    som svarar här som en fiktiv butik, Lumen Cycles.
   </p>
 
 <script>
@@ -135,7 +127,7 @@
     return d;
   }
 
-  addMsg('bot', "Hi, thanks for reaching out to Lumen Cycles! Ask me about shipping, returns, warranty, or your order — I'm the entire support team here, so I'll do my best to sort it out myself.");
+  addMsg('bot', "Hej, tack för att du hör av dig till Lumen Cycles! Fråga mig om frakt, returer, garanti eller din order — jag är hela supportteamet här, så jag gör mitt bästa för att lösa det själv.");
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -144,7 +136,7 @@
     addMsg('user', text);
     input.value = '';
     sendBtn.disabled = true;
-    const typingEl = addMsg('typing', 'Thinking…');
+    const typingEl = addMsg('typing', 'Tänker…');
     try {
       const res = await fetch(API_BASE + '/api/chat', {
         method: 'POST',
@@ -153,12 +145,12 @@
       });
       const data = await res.json();
       typingEl.remove();
-      if (!res.ok) throw new Error(data.error || 'Something went wrong.');
+      if (!res.ok) throw new Error(data.error || 'Något gick fel.');
       conversationId = data.conversationId;
       addMsg('bot', data.reply);
     } catch (err) {
       typingEl.remove();
-      addMsg('error', "Couldn't reach support right now — please try again in a moment, or email hello@lumencycles.example.");
+      addMsg('error', "Kunde inte nå supporten just nu — försök igen om en liten stund, eller mejla hello@lumencycles.example.");
     } finally {
       sendBtn.disabled = false;
       input.focus();
