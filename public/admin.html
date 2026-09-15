@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Adjustglow — Review Queue</title>
+<style>
+  :root {
+    --bg: #FAF8F4; --surface: #FFFFFF; --surface-sunk: #F1EEE6;
+    --ink: #17140F; --ink-soft: #5A5245; --ink-faint: #948B79;
+    --line: #E7E1D4; --accent: #E7A926; --accent-ink: #251801; --orange: #D9581B;
+    --urgent: #C0392B;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: ui-sans-serif, system-ui, sans-serif; padding: 24px; }
+  h1 { font-size: 1.3rem; margin: 0 0 4px; }
+  .sub { color: var(--ink-soft); margin: 0 0 20px; font-size: 0.9rem; }
+  table { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  th, td { text-align: left; padding: 10px 12px; font-size: 0.85rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { background: var(--surface-sunk); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-faint); }
+  tr.resolved { opacity: 0.5; }
+  .sev { font-weight: 700; padding: 2px 8px; border-radius: 999px; font-size: 0.72rem; display: inline-block; }
+  .sev-low { background: #E7E1D4; color: var(--ink-soft); }
+  .sev-medium { background: #FBE3D1; color: var(--orange); }
+  .sev-high { background: #F6D2C0; color: var(--urgent); }
+  .sev-urgent { background: var(--urgent); color: #fff; }
+  button { font: inherit; border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 6px 12px; cursor: pointer; }
+  button:hover { border-color: var(--accent); }
+  .empty { padding: 30px; text-align: center; color: var(--ink-faint); }
+  .convo { white-space: pre-wrap; font-size: 0.78rem; max-width: 420px; }
+</style>
+</head>
+<body>
+  <h1>Review queue</h1>
+  <p class="sub">Everything the AI agent flagged for a human to look at. Resolved items stay listed, dimmed, for a record.</p>
+  <div id="root">Loading…</div>
+
+<script>
+  const root = document.getElementById('root');
+
+  function sevClass(sev) { return 'sev sev-' + (sev || 'medium'); }
+
+  async function load() {
+    const res = await fetch('/api/review-queue');
+    const items = await res.json();
+    if (!items.length) {
+      root.innerHTML = '<div class="empty">Nothing flagged yet.</div>';
+      return;
+    }
+    const rows = await Promise.all(items.map(renderRow));
+    root.innerHTML = '<table><thead><tr>' +
+      '<th>Severity</th><th>Reason</th><th>Summary</th><th>Channel</th><th>When</th><th>Conversation</th><th></th>' +
+      '</tr></thead><tbody>' + rows.join('') + '</tbody></table>';
+    root.querySelectorAll('[data-resolve]').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        await fetch('/api/review-queue/' + btn.dataset.resolve + '/resolve', { method: 'POST' });
+        load();
+      });
+    });
+  }
+
+  async function renderRow(item) {
+    let convoText = '';
+    try {
+      const r = await fetch('/api/conversations/' + item.conversationId);
+      if (r.ok) {
+        const convo = await r.json();
+        convoText = convo.messages.map((m) => (m.role === 'user' ? 'Customer: ' : 'Agent: ') + m.content).join('\n\n');
+      }
+    } catch {}
+    return '<tr class="' + (item.resolved ? 'resolved' : '') + '">' +
+      '<td><span class="' + sevClass(item.severity) + '">' + item.severity + '</span></td>' +
+      '<td>' + escapeHtml(item.reason) + '</td>' +
+      '<td>' + escapeHtml(item.summary) + '</td>' +
+      '<td>' + item.channel + '</td>' +
+      '<td>' + new Date(item.at).toLocaleString() + '</td>' +
+      '<td><details><summary>View</summary><div class="convo">' + escapeHtml(convoText) + '</div></details></td>' +
+      '<td>' + (item.resolved ? 'Resolved' : '<button data-resolve="' + item.id + '">Mark resolved</button>') + '</td>' +
+      '</tr>';
+  }
+
+  function escapeHtml(s) {
+    return String(s || '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+
+  load();
+</script>
+</body>
+</html>

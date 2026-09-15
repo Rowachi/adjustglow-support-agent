@@ -1,0 +1,22 @@
+{
+  "name": "adjustglow-support-agent",
+  "version": "1.0.0",
+  "description": "AI-only customer support backend for Adjustglow client businesses (web chat + email channels).",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "private": "true",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.125.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "nanoid": "^6.0.1"
+  }
+}

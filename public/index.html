@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Adjustglow Support Agent — Test Console</title>
+<style>
+  :root {
+    --bg: #FAF8F4; --surface: #FFFFFF; --surface-sunk: #F1EEE6;
+    --ink: #17140F; --ink-soft: #5A5245; --ink-faint: #948B79;
+    --line: #E7E1D4; --accent: #E7A926; --accent-ink: #251801; --orange: #D9581B;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: ui-sans-serif, system-ui, sans-serif; padding: 24px;
+  }
+  h1 { font-size: 1.3rem; margin: 0 0 4px; }
+  .sub { color: var(--ink-soft); margin: 0 0 24px; font-size: 0.9rem; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
+  @media (max-width: 800px) { .cols { grid-template-columns: 1fr; } }
+  .card {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+    padding: 16px; display: flex; flex-direction: column; gap: 10px;
+  }
+  .card h2 { font-size: 1rem; margin: 0; }
+  .card p.hint { margin: 0; font-size: 0.8rem; color: var(--ink-faint); }
+  #messages {
+    height: 360px; overflow-y: auto; background: var(--surface-sunk);
+    border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 8px;
+  }
+  .msg { max-width: 85%; padding: 8px 12px; border-radius: 10px; font-size: 0.88rem; white-space: pre-wrap; }
+  .msg.user { align-self: flex-end; background: var(--ink); color: var(--bg); }
+  .msg.bot { align-self: flex-start; background: var(--surface); border: 1px solid var(--line); }
+  .msg.flag { align-self: center; background: color-mix(in srgb, var(--orange) 18%, var(--surface)); border: 1px solid var(--orange); font-size: 0.76rem; color: var(--orange); }
+  form { display: flex; gap: 8px; }
+  input, textarea {
+    font: inherit; border: 1px solid var(--line); border-radius: 8px; padding: 9px 10px;
+    background: var(--surface); color: var(--ink); width: 100%;
+  }
+  textarea { resize: vertical; min-height: 70px; }
+  button {
+    font: inherit; border: none; border-radius: 8px; padding: 9px 16px;
+    background: var(--accent); color: var(--accent-ink); font-weight: 600; cursor: pointer;
+  }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
+  label { font-size: 0.78rem; color: var(--ink-soft); }
+  .email-reply { background: var(--surface-sunk); border-radius: 8px; padding: 12px; font-size: 0.85rem; white-space: pre-wrap; min-height: 60px; }
+  a { color: var(--orange); }
+</style>
+</head>
+<body>
+  <h1>Adjustglow Support Agent — Test Console</h1>
+  <p class="sub">Local dev harness for the AI-only support backend. Not the public site — see <a href="/admin.html">the review queue</a> for flagged conversations.</p>
+
+  <div class="cols">
+    <div class="card">
+      <h2>Web chat channel</h2>
+      <p class="hint">Talking to Lumen Cycles, the demo business in data/knowledge-base.md.</p>
+      <div id="messages"></div>
+      <form id="chat-form">
+        <input id="chat-input" placeholder="Ask about shipping, returns, warranty…" autocomplete="off">
+        <button id="chat-send" type="submit">Send</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>Email channel (simulated incoming email)</h2>
+      <p class="hint">Stands in for an inbound-email webhook. See the README for wiring a real provider.</p>
+      <form id="email-form">
+        <div class="field">
+          <label for="email-from">From</label>
+          <input id="email-from" value="jordan@example.com" required>
+        </div>
+        <div class="field">
+          <label for="email-subject">Subject</label>
+          <input id="email-subject" value="Question about my order">
+        </div>
+        <div class="field">
+          <label for="email-body">Body</label>
+          <textarea id="email-body" required>My e-bike battery seems to be losing charge really fast after 2 weeks. Is this covered?</textarea>
+        </div>
+        <button id="email-send" type="submit">Generate reply</button>
+      </form>
+      <div>
+        <label>Generated reply</label>
+        <div class="email-reply" id="email-reply">—</div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  let conversationId = null;
+  const messagesEl = document.getElementById('messages');
+  const chatForm = document.getElementById('chat-form');
+  const chatInput = document.getElementById('chat-input');
+  const chatSend = document.getElementById('chat-send');
+
+  function addMsg(cls, text) {
+    const d = document.createElement('div');
+    d.className = 'msg ' + cls;
+    d.textContent = text;
+    messagesEl.appendChild(d);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  chatForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const text = chatInput.value.trim();
+    if (!text) return;
+    addMsg('user', text);
+    chatInput.value = '';
+    chatSend.disabled = true;
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text, conversationId }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Request failed');
+      conversationId = data.conversationId;
+      addMsg('bot', data.reply);
+      if (data.flagged) addMsg('flag', '⚑ This exchange was flagged for human review — check /admin.html');
+    } catch (err) {
+      addMsg('bot', 'Error: ' + err.message);
+    } finally {
+      chatSend.disabled = false;
+    }
+  });
+
+  const emailForm = document.getElementById('email-form');
+  const emailSend = document.getElementById('email-send');
+  const emailReply = document.getElementById('email-reply');
+  let emailConversationId = null;
+
+  emailForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    emailSend.disabled = true;
+    emailReply.textContent = 'Thinking…';
+    try {
+      const res = await fetch('/api/email/incoming', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          from: document.getElementById('email-from').value,
+          subject: document.getElementById('email-subject').value,
+          body: document.getElementById('email-body').value,
+          conversationId: emailConversationId,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Request failed');
+      emailConversationId = data.conversationId;
+      emailReply.textContent = data.reply + (data.flagged ? '\n\n⚑ Flagged for human review.' : '');
+    } catch (err) {
+      emailReply.textContent = 'Error: ' + err.message;
+    } finally {
+      emailSend.disabled = false;
+    }
+  });
+</script>
+</body>
+</html>
