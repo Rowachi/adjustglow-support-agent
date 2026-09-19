@@ -60,6 +60,42 @@
   @keyframes drift-b { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(8%, -6%) scale(1.08); } }
   @keyframes drift-c { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-10%, -10%) scale(0.9); } }
 
+  /* ---------- Live status ticker (fills the top strip; a single cheap transform loop) ---------- */
+  .ticker {
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-raise);
+    overflow: hidden;
+    white-space: nowrap;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+  }
+  .ticker-track {
+    display: inline-flex;
+    align-items: center;
+    gap: 46px;
+    padding-block: 10px;
+    animation: ticker-scroll 34s linear infinite;
+    will-change: transform;
+  }
+  .ticker-track span {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.78rem;
+    letter-spacing: 0.02em;
+    color: var(--ink-faint);
+  }
+  .ticker-track span::before {
+    content: "";
+    width: 4px; height: 4px; border-radius: 50%;
+    background: var(--orange);
+    flex: none;
+  }
+  @keyframes ticker-scroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
   ::selection { background: var(--accent); color: var(--accent-ink); }
   ::-webkit-scrollbar { width: 11px; height: 11px; }
   ::-webkit-scrollbar-track { background: var(--surface-sunk); }
@@ -188,7 +224,7 @@
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
-    animation: shimmer 7s ease-in-out infinite;
+    animation: shimmer 3s ease-in-out 3;
   }
   @keyframes shimmer {
     0%, 100% { background-position: 0% 50%; }
@@ -528,6 +564,21 @@
   .grid-3 .reveal:nth-child(2) { transition-delay: 0.08s; }
   .grid-3 .reveal:nth-child(3) { transition-delay: 0.16s; }
 
+  /* Pause below-the-fold decorative loop animations until they're actually
+     visible, so they don't spend paint time while off-screen (scroll perf). */
+  .flow .step::before,
+  .spotlight .flow-line,
+  .price-card.featured::before,
+  .price-card.featured .price-tag {
+    animation-play-state: paused;
+  }
+  .flow.motion-in-view .step::before,
+  .spotlight.motion-in-view .flow-line,
+  .price-card.featured.motion-in-view::before,
+  .price-card.featured.motion-in-view .price-tag {
+    animation-play-state: running;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     * { transition: none !important; animation: none !important; }
     .reveal { opacity: 1 !important; transform: none !important; }
@@ -626,13 +677,27 @@
     .ag-fab { right: 16px; bottom: 16px; }
   }
 </style>
-<noscript><style>.reveal{opacity:1 !important;transform:none !important}.glow-field{animation-play-state:paused}</style></noscript>
+<noscript><style>.reveal{opacity:1 !important;transform:none !important}.glow-field{animation-play-state:paused}.ticker-track{animation-play-state:paused}</style></noscript>
 </head>
 <body>
 
 <div class="glow-field" aria-hidden="true"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span></div>
 
 <div id="site-view">
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-track">
+    <span>Svarar på under 2 minuter</span>
+    <span>Mänskliga agenter, öppna 24/5</span>
+    <span>Recensioner synkas till Google &amp; Trustpilot</span>
+    <span>Ingen bindningstid</span>
+    <span>Kom igång på under en vecka</span>
+    <span>Svarar på under 2 minuter</span>
+    <span>Mänskliga agenter, öppna 24/5</span>
+    <span>Recensioner synkas till Google &amp; Trustpilot</span>
+    <span>Ingen bindningstid</span>
+    <span>Kom igång på under en vecka</span>
+  </div>
+</div>
 <header>
   <a class="logo" href="#top">
     <span class="logo-mark"></span>
@@ -1182,6 +1247,21 @@
     revealEls.forEach(function (el) { io.observe(el); });
   }
 
+  // Pause/resume decorative loop animations (pricing ring, step-chase,
+  // diagram dashes) based on visibility, so they don't spend paint time
+  // while scrolled off-screen.
+  var motionHosts = Array.prototype.slice.call(document.querySelectorAll(".flow, .spotlight, .price-card.featured"));
+  if (!reduceMotion && motionHosts.length && ("IntersectionObserver" in window)) {
+    var ioMotion = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        entry.target.classList.toggle("motion-in-view", entry.isIntersecting);
+      });
+    }, { threshold: 0 });
+    motionHosts.forEach(function (el) { ioMotion.observe(el); });
+  } else {
+    motionHosts.forEach(function (el) { el.classList.add("motion-in-view"); });
+  }
+
   // FAQ accordion (single-open)
   var faqItems = Array.prototype.slice.call(document.querySelectorAll("#faq-list .faq-item"));
   faqItems.forEach(function (item) {
@@ -1202,10 +1282,19 @@
   // Cursor-following highlight on primary/accent buttons
   if (!reduceMotion) {
     document.querySelectorAll(".btn-primary, .btn-accent").forEach(function (btn) {
+      var ticking = false, lastX = 50, lastY = 50;
       btn.addEventListener("pointermove", function (e) {
         var r = btn.getBoundingClientRect();
-        btn.style.setProperty("--mx", ((e.clientX - r.left) / r.width * 100) + "%");
-        btn.style.setProperty("--my", ((e.clientY - r.top) / r.height * 100) + "%");
+        lastX = (e.clientX - r.left) / r.width * 100;
+        lastY = (e.clientY - r.top) / r.height * 100;
+        if (!ticking) {
+          ticking = true;
+          requestAnimationFrame(function () {
+            btn.style.setProperty("--mx", lastX + "%");
+            btn.style.setProperty("--my", lastY + "%");
+            ticking = false;
+          });
+        }
       });
     });
   }
