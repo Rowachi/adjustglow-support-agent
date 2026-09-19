@@ -17,11 +17,19 @@
   }
   * { box-sizing: border-box; }
   ::selection { background: var(--accent); color: var(--accent-ink); }
+  .glow-field { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+  .glow-field span {
+    position: absolute; width: 60vmax; height: 60vmax; border-radius: 50%;
+    filter: blur(90px); opacity: 0.4; will-change: transform;
+  }
+  .glow-field .b1 { background: radial-gradient(circle, var(--accent), transparent 62%); top: -26vmax; right: -18vmax; animation: drift-a 26s ease-in-out infinite; }
+  .glow-field .b2 { background: radial-gradient(circle, var(--orange), transparent 60%); bottom: -28vmax; left: -20vmax; opacity: 0.32; animation: drift-b 32s ease-in-out infinite; }
+  @keyframes drift-a { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-6%, 8%) scale(1.1); } }
+  @keyframes drift-b { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(8%, -6%) scale(1.08); } }
+  @media (prefers-reduced-motion: reduce) { .glow-field span { animation: none !important; } }
   body {
     margin: 0;
-    background:
-      radial-gradient(900px 460px at 85% -10%, rgba(232,172,46,0.10), transparent 60%),
-      var(--bg);
+    background: var(--bg);
     color: var(--ink);
     font-family: Karla, ui-sans-serif, system-ui, sans-serif;
     min-height: 100vh; display: flex; flex-direction: column; align-items: center;
@@ -36,7 +44,13 @@
     background: radial-gradient(circle at 32% 28%, var(--accent-bright), var(--orange) 78%);
     box-shadow: 0 0 0 1px var(--line-bright), 0 0 18px 1px rgba(232,172,46,0.3);
     flex-shrink: 0;
+    animation: logo-breathe 3.6s ease-in-out infinite;
   }
+  @keyframes logo-breathe {
+    0%, 100% { box-shadow: 0 0 0 1px var(--line-bright), 0 0 12px 1px rgba(232,172,46,0.28); }
+    50% { box-shadow: 0 0 0 1px var(--line-bright), 0 0 22px 4px rgba(232,172,46,0.48); }
+  }
+  @media (prefers-reduced-motion: reduce) { .dot { animation: none !important; } }
   .brand { font-family: Fraunces, serif; font-weight: 600; font-size: 1.08rem; letter-spacing: -0.01em; }
   .badge {
     margin-left: auto; font-size: 0.68rem;
@@ -72,9 +86,19 @@
   button {
     font: inherit; font-weight: 600; border: none; border-radius: 10px; padding: 0 20px;
     background: var(--accent); color: var(--accent-ink); cursor: pointer; flex-shrink: 0;
+    position: relative; overflow: hidden; transition: background 0.2s ease, transform 0.15s ease;
   }
+  button::before {
+    content: ""; position: absolute; inset: 0;
+    background: radial-gradient(90px circle at var(--mx, 50%) var(--my, 50%), rgba(255,255,255,0.4), transparent 62%);
+    opacity: 0; transition: opacity 0.3s ease;
+  }
+  button:hover::before { opacity: 1; }
   button:hover { background: var(--accent-bright); }
   button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .msg { animation: msg-in 0.25s ease; }
+  @keyframes msg-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .msg { animation: none !important; } }
   .foot {
     max-width: 640px; width: 100%; margin-top: 16px; font-size: 0.76rem; color: var(--ink-faint);
     text-align: center;
@@ -86,6 +110,7 @@
 </style>
 </head>
 <body>
+  <div class="glow-field" aria-hidden="true"><span class="b1"></span><span class="b2"></span></div>
   <div class="topbar">
     <div class="dot"></div>
     <div class="brand">Lumen Cycles</div>
@@ -156,6 +181,16 @@
       input.focus();
     }
   });
+
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.querySelectorAll('button').forEach(function (btn) {
+      btn.addEventListener('pointermove', function (e) {
+        var r = btn.getBoundingClientRect();
+        btn.style.setProperty('--mx', ((e.clientX - r.left) / r.width * 100) + '%');
+        btn.style.setProperty('--my', ((e.clientY - r.top) / r.height * 100) + '%');
+      });
+    });
+  }
 </script>
 </body>
 </html>

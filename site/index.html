@@ -25,6 +25,7 @@
     --orange: #E2632A;
     --orange-bright: #F0824E;
     --orange-soft: #2C160A;
+    --ember: #FF5A2E;
     --shadow: 0 1px 2px rgba(0,0,0,0.45), 0 28px 60px -24px rgba(0,0,0,0.75);
     --shadow-gold: 0 1px 2px rgba(0,0,0,0.4), 0 20px 44px -18px rgba(232,172,46,0.22);
     --radius-s: 7px;
@@ -33,8 +34,31 @@
     color-scheme: dark;
   }
 
+  @property --ring-angle {
+    syntax: '<angle>';
+    inherits: false;
+    initial-value: 0deg;
+  }
+
   * { box-sizing: border-box; }
   [hidden] { display: none !important; }
+
+  /* ---------- Ambient glow field (signature: the brand is literally "glow") ---------- */
+  .glow-field { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+  .glow-field .blob {
+    position: absolute;
+    width: 60vmax; height: 60vmax;
+    border-radius: 50%;
+    filter: blur(90px);
+    opacity: 0.55;
+    will-change: transform;
+  }
+  .glow-field .b1 { background: radial-gradient(circle, var(--accent), transparent 62%); top: -22vmax; right: -16vmax; animation: drift-a 26s ease-in-out infinite; }
+  .glow-field .b2 { background: radial-gradient(circle, var(--orange), transparent 60%); bottom: -26vmax; left: -18vmax; opacity: 0.42; animation: drift-b 32s ease-in-out infinite; }
+  .glow-field .b3 { width: 42vmax; height: 42vmax; background: radial-gradient(circle, var(--ember), transparent 65%); top: 30vh; left: 55vw; opacity: 0.24; animation: drift-c 22s ease-in-out infinite; }
+  @keyframes drift-a { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-6%, 8%) scale(1.12); } }
+  @keyframes drift-b { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(8%, -6%) scale(1.08); } }
+  @keyframes drift-c { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-10%, -10%) scale(0.9); } }
 
   ::selection { background: var(--accent); color: var(--accent-ink); }
   ::-webkit-scrollbar { width: 11px; height: 11px; }
@@ -45,10 +69,7 @@
   html { background: var(--bg); }
   body {
     margin: 0;
-    background:
-      radial-gradient(1100px 520px at 82% -8%, rgba(232,172,46,0.10), transparent 60%),
-      radial-gradient(900px 500px at -6% 18%, rgba(226,99,42,0.08), transparent 55%),
-      var(--bg);
+    background: var(--bg);
     color: var(--ink);
     font-family: 'Karla', ui-sans-serif, system-ui, sans-serif;
     font-size: 16px;
@@ -95,6 +116,11 @@
     background: radial-gradient(circle at 34% 28%, var(--accent-bright), var(--orange) 72%);
     box-shadow: 0 0 0 1px var(--line-bright), 0 0 22px 1px rgba(232,172,46,0.35);
     flex: none;
+    animation: logo-breathe 3.6s ease-in-out infinite;
+  }
+  @keyframes logo-breathe {
+    0%, 100% { box-shadow: 0 0 0 1px var(--line-bright), 0 0 14px 1px rgba(232,172,46,0.3); }
+    50% { box-shadow: 0 0 0 1px var(--line-bright), 0 0 26px 5px rgba(232,172,46,0.5); }
   }
   nav.links {
     display: flex;
@@ -102,8 +128,14 @@
     font-size: 0.94rem;
     color: var(--ink-soft);
   }
-  nav.links a { text-decoration: none; position: relative; }
+  nav.links a { text-decoration: none; position: relative; padding-bottom: 4px; }
   nav.links a:hover { color: var(--ink); }
+  nav.links a::after {
+    content: ""; position: absolute; left: 0; bottom: 0; width: 100%; height: 1.5px;
+    background: linear-gradient(90deg, var(--accent), var(--orange-bright));
+    transform: scaleX(0); transform-origin: left; transition: transform 0.28s ease;
+  }
+  nav.links a:hover::after { transform: scaleX(1); }
   .btn {
     display: inline-flex;
     align-items: center;
@@ -127,6 +159,14 @@
   .btn-accent:hover { transform: translateY(-1px); box-shadow: var(--shadow-gold); background: var(--accent-bright); }
   .nav-cta { display: flex; align-items: center; gap: 14px; }
 
+  .btn-primary, .btn-accent { position: relative; overflow: hidden; isolation: isolate; }
+  .btn-primary::before, .btn-accent::before {
+    content: ""; position: absolute; inset: 0; z-index: -1;
+    background: radial-gradient(140px circle at var(--mx, 50%) var(--my, 50%), rgba(255,255,255,0.4), transparent 62%);
+    opacity: 0; transition: opacity 0.35s ease;
+  }
+  .btn-primary:hover::before, .btn-accent:hover::before { opacity: 1; }
+
   /* ---------- Hero ---------- */
   .hero {
     display: grid;
@@ -143,10 +183,16 @@
   }
   .hero h1 em {
     font-style: normal;
-    background: linear-gradient(100deg, var(--accent-bright), var(--orange-bright) 78%);
+    background: linear-gradient(100deg, var(--accent-bright), var(--ember) 45%, var(--accent-bright) 78%, var(--orange-bright));
+    background-size: 260% 100%;
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
+    animation: shimmer 7s ease-in-out infinite;
+  }
+  @keyframes shimmer {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
   }
   .hero-sub {
     margin-top: 22px;
@@ -205,6 +251,8 @@
   .demo-row .body { font-size: 0.89rem; color: var(--ink); }
   .demo-row .label { font-size: 0.72rem; color: var(--ink-faint); margin-bottom: 3px; }
   .demo-arrow { text-align: center; color: var(--ink-faint); font-size: 0.83rem; }
+  .flow-arrow { display: inline-block; animation: flow-bounce 1.8s ease-in-out infinite; color: var(--orange-bright); }
+  @keyframes flow-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(4px); } }
   .demo-sync { display: flex; gap: 10px; flex-wrap: wrap; }
   .sync-badge {
     flex: 1;
@@ -219,8 +267,18 @@
     font-size: 0.82rem;
     font-weight: 600;
   }
+  .sync-badge { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+  .sync-badge:hover { transform: translateY(-2px); box-shadow: var(--shadow-gold); }
   .sync-badge .stars { color: var(--accent); letter-spacing: 1px; }
-  .sync-badge .ok { margin-left: auto; color: var(--orange-bright); font-size: 0.78rem; }
+  .sync-badge .ok { margin-left: auto; color: var(--orange-bright); font-size: 0.78rem; position: relative; }
+  .sync-badge .ok::before {
+    content: ""; position: absolute; left: -14px; top: 50%; width: 6px; height: 6px;
+    margin-top: -3px; border-radius: 50%; background: var(--orange-bright);
+    animation: ok-pulse 1.8s ease-in-out infinite;
+  }
+  @keyframes ok-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(226,99,42,0.5); } 50% { box-shadow: 0 0 0 5px rgba(226,99,42,0); } }
+  .demo-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+  .demo-card:hover { transform: translateY(-4px); }
 
   /* ---------- Section shell ---------- */
   .band { padding-block: 78px; border-top: 1px solid var(--line); }
@@ -243,7 +301,10 @@
     gap: 14px;
     border: 1px solid var(--line);
     background: var(--surface);
+    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
   }
+  .svc:hover { transform: translateY(-5px); border-color: var(--line-bright); box-shadow: var(--shadow); }
+  .svc-d:hover { border-color: var(--accent); box-shadow: var(--shadow-gold); }
   .svc-a { grid-column: 1; grid-row: 1 / 4; background: linear-gradient(165deg, var(--surface-2), var(--surface)); border-color: var(--line-bright); box-shadow: var(--shadow); justify-content: center; padding: 40px; }
   .svc-b { grid-column: 2; grid-row: 1; }
   .svc-c { grid-column: 2; grid-row: 2; }
@@ -270,7 +331,18 @@
     grid-template-columns: repeat(5, 1fr);
     gap: 26px;
   }
-  .step { position: relative; padding-top: 18px; border-top: 1px solid var(--line-bright); }
+  .step { position: relative; padding-top: 18px; border-top: 1px solid var(--line-bright); overflow: hidden; }
+  .step::before {
+    content: ""; position: absolute; top: -1px; left: -30%; width: 30%; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent-bright), transparent);
+    animation: step-chase 5s ease-in-out infinite;
+  }
+  .step:nth-child(1)::before { animation-delay: 0s; }
+  .step:nth-child(2)::before { animation-delay: 0.5s; }
+  .step:nth-child(3)::before { animation-delay: 1s; }
+  .step:nth-child(4)::before { animation-delay: 1.5s; }
+  .step:nth-child(5)::before { animation-delay: 2s; }
+  @keyframes step-chase { 0% { left: -30%; } 100% { left: 100%; } }
   .step .num {
     font-family: 'Fraunces', serif;
     font-size: 1.7rem;
@@ -300,6 +372,8 @@
   .spotlight-list li { list-style: none; display: flex; gap: 11px; font-size: 0.93rem; }
   .spotlight-list li::before { content: "→"; color: var(--orange-bright); font-weight: 700; flex: none; }
   .diagram { width: 100%; height: auto; }
+  .flow-line { stroke-dasharray: 5 5; animation: dash-flow 1s linear infinite; }
+  @keyframes dash-flow { to { stroke-dashoffset: -20; } }
 
   /* ---------- Pricing ---------- */
   .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; align-items: stretch; }
@@ -311,13 +385,27 @@
     display: flex;
     flex-direction: column;
     gap: 17px;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
   }
+  .price-card:hover { transform: translateY(-5px); }
   .price-card.featured {
     border-color: var(--accent);
     box-shadow: var(--shadow-gold);
     background: linear-gradient(170deg, rgba(232,172,46,0.06), var(--surface));
     position: relative;
+    isolation: isolate;
   }
+  .price-card.featured::before {
+    content: ""; position: absolute; inset: -2px; border-radius: inherit; z-index: -1;
+    background: conic-gradient(from var(--ring-angle, 0deg), var(--accent), var(--orange-bright), var(--ember), var(--accent-bright), var(--accent));
+    animation: ring-spin 7s linear infinite;
+    opacity: 0.6;
+  }
+  .price-card.featured::after {
+    content: ""; position: absolute; inset: 1px; border-radius: inherit; z-index: -1;
+    background: linear-gradient(170deg, #201607, var(--surface));
+  }
+  @keyframes ring-spin { to { --ring-angle: 360deg; } }
   .price-tag {
     position: absolute;
     top: -13px;
@@ -330,6 +418,12 @@
     text-transform: uppercase;
     padding: 5px 11px;
     border-radius: 999px;
+    z-index: 1;
+    animation: tag-pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes tag-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(232,172,46,0.5); }
+    50% { box-shadow: 0 0 0 6px rgba(232,172,46,0); }
   }
   .price-card h3 { font-size: 1.08rem; font-weight: 600; }
   .price-card .amount { font-family: 'Fraunces', serif; font-size: 2.15rem; font-weight: 600; }
@@ -340,12 +434,30 @@
   .price-card li::before { content: "—"; color: var(--ink-faint); flex: none; }
   .price-note { margin-top: 24px; font-size: 0.83rem; color: var(--ink-faint); }
 
-  /* ---------- FAQ ---------- */
+  /* ---------- FAQ (accordion) ---------- */
   .faq { display: flex; flex-direction: column; }
-  .faq-item { padding-block: 22px; border-top: 1px solid var(--line); }
+  .faq-item { border-top: 1px solid var(--line); }
   .faq-item:last-child { border-bottom: 1px solid var(--line); }
-  .faq-item h3 { font-size: 1.02rem; font-weight: 600; font-family: 'Karla', sans-serif; }
-  .faq-item p { margin-top: 9px; font-size: 0.93rem; color: var(--ink-soft); max-width: 70ch; }
+  .faq-q {
+    all: unset; display: flex; align-items: center; justify-content: space-between; gap: 20px;
+    width: 100%; box-sizing: border-box; cursor: pointer; padding-block: 22px;
+  }
+  .faq-q h3 { font-size: 1.02rem; font-weight: 600; font-family: 'Karla', sans-serif; transition: color 0.2s ease; }
+  .faq-q:hover h3 { color: var(--accent-bright); }
+  .faq-q:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 4px; }
+  .faq-icon { width: 20px; height: 20px; flex: none; position: relative; }
+  .faq-icon::before, .faq-icon::after {
+    content: ""; position: absolute; background: var(--ink-faint); border-radius: 2px;
+    transition: transform 0.3s ease, background 0.2s ease;
+  }
+  .faq-icon::before { width: 12px; height: 2px; top: 9px; left: 4px; }
+  .faq-icon::after { width: 2px; height: 12px; top: 4px; left: 9px; }
+  .faq-item.open .faq-icon::before, .faq-item.open .faq-icon::after { background: var(--accent-bright); }
+  .faq-item.open .faq-icon::after { transform: rotate(90deg); opacity: 0; }
+  .faq-a { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.35s ease; }
+  .faq-a-inner { overflow: hidden; }
+  .faq-item.open .faq-a { grid-template-rows: 1fr; }
+  .faq-a p { margin-top: 0; padding-bottom: 22px; font-size: 0.93rem; color: var(--ink-soft); max-width: 70ch; }
 
   /* ---------- CTA band ---------- */
   .cta-band {
@@ -403,8 +515,22 @@
     header { padding-block: 18px; }
   }
 
+  /* ---------- Scroll reveal ---------- */
+  .reveal { opacity: 0; transform: translateY(22px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.in-view { opacity: 1; transform: none; }
+  .services-grid .reveal:nth-child(2) { transition-delay: 0.08s; }
+  .services-grid .reveal:nth-child(3) { transition-delay: 0.16s; }
+  .services-grid .reveal:nth-child(4) { transition-delay: 0.24s; }
+  .flow .reveal:nth-child(2) { transition-delay: 0.08s; }
+  .flow .reveal:nth-child(3) { transition-delay: 0.16s; }
+  .flow .reveal:nth-child(4) { transition-delay: 0.24s; }
+  .flow .reveal:nth-child(5) { transition-delay: 0.32s; }
+  .grid-3 .reveal:nth-child(2) { transition-delay: 0.08s; }
+  .grid-3 .reveal:nth-child(3) { transition-delay: 0.16s; }
+
   @media (prefers-reduced-motion: reduce) {
-    * { transition: none !important; }
+    * { transition: none !important; animation: none !important; }
+    .reveal { opacity: 1 !important; transform: none !important; }
   }
 
   /* ---------- Live demo page ---------- */
@@ -500,8 +626,11 @@
     .ag-fab { right: 16px; bottom: 16px; }
   }
 </style>
+<noscript><style>.reveal{opacity:1 !important;transform:none !important}.glow-field{animation-play-state:paused}</style></noscript>
 </head>
 <body>
+
+<div class="glow-field" aria-hidden="true"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span></div>
 
 <div id="site-view">
 <header>
@@ -550,7 +679,7 @@
         "Reservdelen skickades samma dag — jag hade inte väntat mig en så snabb lösning."
       </div>
     </div>
-    <div class="demo-arrow">↓ agenten avslutar ärendet, recensionsförfrågan skickas automatiskt</div>
+    <div class="demo-arrow"><span class="flow-arrow">↓</span> agenten avslutar ärendet, recensionsförfrågan skickas automatiskt</div>
     <div class="demo-row">
       <div class="avatar" style="background: var(--surface-2); border: 1px solid var(--line-bright); color: var(--accent-bright);">★</div>
       <div class="body">
@@ -558,7 +687,7 @@
         "Snabbt, trevligt och de löste det faktiskt. 5/5."
       </div>
     </div>
-    <div class="demo-arrow">↓ synkas automatiskt</div>
+    <div class="demo-arrow"><span class="flow-arrow" style="animation-delay: 0.4s;">↓</span> synkas automatiskt</div>
     <div class="demo-sync">
       <div class="sync-badge"><span class="stars">★★★★★</span><span class="ok">Google ✓</span></div>
       <div class="sync-badge"><span class="stars">★★★★★</span><span class="ok">Trustpilot ✓</span></div>
@@ -567,27 +696,27 @@
 </section>
 
 <section class="band" id="services">
-  <div class="band-head">
+  <div class="band-head reveal">
     <h2>Support som känns som en del av teamet — fast vi sköter allt.</h2>
     <p>Välj de kanaler era kunder faktiskt använder. Vi bemannar dem, skriver manus efter ert varumärke och håller allt uppdaterat.</p>
   </div>
   <div class="services-grid">
-    <div class="svc svc-a">
+    <div class="svc svc-a reveal">
       <div class="svc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5z"></path></svg></div>
       <h3>Livechatt &amp; e-post</h3>
       <p>Utbildade agenter svarar i er varumärkesröst, med era makron och kunskapsbas alltid uppdaterade.</p>
     </div>
-    <div class="svc svc-b">
+    <div class="svc svc-b reveal">
       <div class="svc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3c1 2 1.5 3.5 1.5 5L5 10c1.2 3.6 3.7 6.1 7.3 7.3l2.2-2.5c1.5 0 3 .5 5 1.5v3.2c0 1-.8 1.6-1.8 1.5C9.8 20 4 14.2 3.5 6.8 3.4 5.8 4 5 5 5z"></path></svg></div>
       <h3>Telefonsupport</h3>
       <p>En egen linje eller extra kapacitet för ert befintliga nummer, med inspelade samtal och kvalitetsgranskning.</p>
     </div>
-    <div class="svc svc-c">
+    <div class="svc svc-c reveal">
       <div class="svc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9a2 2 0 0 0 0 6v3a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1v-3a2 2 0 0 1 0-6V6a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v3z"></path><path d="M13 5.5v13"></path></svg></div>
       <h3>Helpdesk &amp; ärendehantering</h3>
       <p>Vi arbetar i den helpdesk ni redan har, eller sätter upp en — fullständig logg för varje konversation.</p>
     </div>
-    <div class="svc svc-d">
+    <div class="svc svc-d reveal">
       <div class="svc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.2 5.6L20 10l-4.6 3.6L16.6 20 12 16.6 7.4 20l1.2-6.4L4 10l5.8-1.4z"></path></svg></div>
       <h3>Recensionsinsamling &amp; synk</h3>
       <p>Varje löst ärende utlöser en recensionsförfrågan; godkända recensioner publiceras automatiskt till Google och Trustpilot.</p>
@@ -596,32 +725,32 @@
 </section>
 
 <section class="band" id="how-it-works">
-  <div class="band-head">
+  <div class="band-head reveal">
     <h2>Från "ärende öppnat" till "recension publicerad" — i ett och samma flöde.</h2>
     <p>Inget separat recensionsverktyg att hantera — det är inbyggt i samma konversation som er agent redan för.</p>
   </div>
   <div class="flow">
-    <div class="step">
+    <div class="step reveal">
       <span class="num">1</span>
       <h3>Kunden hör av sig</h3>
       <p>Chatt, e-post eller telefon — vidarebefordras till en Adjustglow-agent insatt i er produkt.</p>
     </div>
-    <div class="step">
+    <div class="step reveal">
       <span class="num">2</span>
       <h3>Vi löser det</h3>
       <p>Agenten arbetar ärendet till avslut, loggat med lösningsanteckningar i er helpdesk.</p>
     </div>
-    <div class="step">
+    <div class="step reveal">
       <span class="num">3</span>
       <h3>Vi frågar om feedback</h3>
       <p>En kort fråga i er ton ber kunden betygsätta konversationen.</p>
     </div>
-    <div class="step">
+    <div class="step reveal">
       <span class="num">4</span>
       <h3>Recensionen publiceras</h3>
       <p>Positiva recensioner går live på er varumärkta recensionssida direkt.</p>
     </div>
-    <div class="step">
+    <div class="step reveal">
       <span class="num">5</span>
       <h3>Den synkas överallt</h3>
       <p>Adjustglow skickar samma recension vidare till Google-företagsprofil och Trustpilot.</p>
@@ -630,7 +759,7 @@
 </section>
 
 <section class="band" id="reviews">
-  <div class="spotlight">
+  <div class="spotlight reveal">
     <div class="spotlight-copy">
       <h2 style="font-size: clamp(1.55rem, 2.3vw, 1.95rem);">En recension, publicerad där köpare faktiskt tittar.</h2>
       <p>De flesta recensionsverktyg stannar vid att samla in ett betyg. Adjustglows synkmotor går längre — samma verifierade recension formateras och skickas till de plattformar som avgör om någon väljer er.</p>
@@ -652,15 +781,15 @@
         <text x="86" y="110" text-anchor="middle" fill="var(--ink)" font-weight="600" font-size="13">Din recensions-</text>
         <text x="86" y="127" text-anchor="middle" font-size="13" fill="var(--ink)">sida</text>
 
-        <line x1="156" y1="114" x2="206" y2="114" stroke="var(--ink-faint)" stroke-width="1.5" marker-end="url(#arrow)"></line>
+        <line class="flow-line" x1="156" y1="114" x2="206" y2="114" stroke="var(--ink-faint)" stroke-width="1.5" marker-end="url(#arrow)"></line>
 
         <rect x="208" y="78" width="150" height="72" rx="8" fill="var(--orange-soft)" stroke="var(--orange)"></rect>
         <text x="283" y="106" text-anchor="middle" fill="var(--orange-bright)" font-weight="700" font-size="13">Adjustglow</text>
         <text x="283" y="124" text-anchor="middle" fill="var(--orange-bright)" font-size="13">synkmotor</text>
         <text x="283" y="141" text-anchor="middle" font-size="9.5" letter-spacing="0.05em" fill="var(--ink-faint)">VERIFIERAD · FORMATERAD</text>
 
-        <line x1="358" y1="98" x2="404" y2="60" stroke="var(--ink-faint)" stroke-width="1.5" marker-end="url(#arrow)"></line>
-        <line x1="358" y1="130" x2="404" y2="168" stroke="var(--ink-faint)" stroke-width="1.5" marker-end="url(#arrow)"></line>
+        <line class="flow-line" x1="358" y1="98" x2="404" y2="60" stroke="var(--ink-faint)" stroke-width="1.5" marker-end="url(#arrow)"></line>
+        <line class="flow-line" x1="358" y1="130" x2="404" y2="168" stroke="var(--ink-faint)" stroke-width="1.5" marker-end="url(#arrow)" style="animation-delay: 0.3s;"></line>
 
         <rect x="406" y="30" width="98" height="52" rx="8" fill="var(--surface)" stroke="var(--line)"></rect>
         <text x="455" y="52" text-anchor="middle" fill="var(--ink)" font-weight="600" font-size="12.5">Google</text>
@@ -675,12 +804,12 @@
 </section>
 
 <section class="band" id="pricing">
-  <div class="band-head">
+  <div class="band-head reveal">
     <h2>Planer som skalar med ärendevolym, inte gissade personalbehov.</h2>
     <p>Alla planer inkluderar recensionsinsamling och synk. Priserna nedan är utkast — vi anpassar gärna en plan efter er ärendevolym.</p>
   </div>
   <div class="grid-3">
-    <div class="price-card">
+    <div class="price-card reveal">
       <h3>Starter</h3>
       <div class="amount mono">4 900 kr<span>/mån</span></div>
       <p class="desc">För mindre team med under 300 ärenden per månad.</p>
@@ -692,7 +821,7 @@
       </ul>
       <a class="btn btn-ghost" href="#contact">Prata med oss</a>
     </div>
-    <div class="price-card featured">
+    <div class="price-card featured reveal">
       <span class="price-tag">Mest valda</span>
       <h3>Growth</h3>
       <div class="amount mono">11 900 kr<span>/mån</span></div>
@@ -706,7 +835,7 @@
       </ul>
       <a class="btn btn-accent" href="#contact">Boka en demo</a>
     </div>
-    <div class="price-card">
+    <div class="price-card reveal">
       <h3>Skala</h3>
       <div class="amount">Anpassat</div>
       <p class="desc">För företag med hög ärendevolym eller flera varumärken.</p>
@@ -723,35 +852,50 @@
 </section>
 
 <section class="band" id="faq">
-  <div class="band-head">
+  <div class="band-head reveal">
     <h2>Frågor vi får innan man skriver på.</h2>
   </div>
-  <div class="faq">
+  <div class="faq reveal" id="faq-list">
     <div class="faq-item">
-      <h3>Vilka recensionsplattformar stödjer ni?</h3>
-      <p>Google-företagsprofil och Trustpilot stöds från start, och skickas in automatiskt när en recension godkänts enligt er recensionspolicy. Fler plattformar kan läggas till på begäran.</p>
+      <button class="faq-q" type="button" aria-expanded="false">
+        <h3>Vilka recensionsplattformar stödjer ni?</h3>
+        <span class="faq-icon" aria-hidden="true"></span>
+      </button>
+      <div class="faq-a"><div class="faq-a-inner"><p>Google-företagsprofil och Trustpilot stöds från start, och skickas in automatiskt när en recension godkänts enligt er recensionspolicy. Fler plattformar kan läggas till på begäran.</p></div></div>
     </div>
     <div class="faq-item">
-      <h3>Sköts konversationerna av människor eller en bot?</h3>
-      <p>Utbildade mänskliga agenter hanterar varje konversation. En bot kan triagera och besvara enkla, återkommande frågor om ni vill det — men det är alltid ni som avgör vilka delar som förblir mänskliga.</p>
+      <button class="faq-q" type="button" aria-expanded="false">
+        <h3>Sköts konversationerna av människor eller en bot?</h3>
+        <span class="faq-icon" aria-hidden="true"></span>
+      </button>
+      <div class="faq-a"><div class="faq-a-inner"><p>Utbildade mänskliga agenter hanterar varje konversation. En bot kan triagera och besvara enkla, återkommande frågor om ni vill det — men det är alltid ni som avgör vilka delar som förblir mänskliga.</p></div></div>
     </div>
     <div class="faq-item">
-      <h3>Vad händer om en kund lämnar en negativ recension?</h3>
-      <p>Ni bestämmer policyn: vissa företag publicerar allt som det är, andra skickar låga betyg till en privat uppföljning först så att problemet kan lösas innan något blir publikt. Inget filtreras utan att era regler finns på plats.</p>
+      <button class="faq-q" type="button" aria-expanded="false">
+        <h3>Vad händer om en kund lämnar en negativ recension?</h3>
+        <span class="faq-icon" aria-hidden="true"></span>
+      </button>
+      <div class="faq-a"><div class="faq-a-inner"><p>Ni bestämmer policyn: vissa företag publicerar allt som det är, andra skickar låga betyg till en privat uppföljning först så att problemet kan lösas innan något blir publikt. Inget filtreras utan att era regler finns på plats.</p></div></div>
     </div>
     <div class="faq-item">
-      <h3>Kan vi anpassa recensionsförfrågans text och timing?</h3>
-      <p>Ja — formulering, timing efter avslutat ärende, och vilka kanaler som utlöser en förfrågan går att ställa in per företag.</p>
+      <button class="faq-q" type="button" aria-expanded="false">
+        <h3>Kan vi anpassa recensionsförfrågans text och timing?</h3>
+        <span class="faq-icon" aria-hidden="true"></span>
+      </button>
+      <div class="faq-a"><div class="faq-a-inner"><p>Ja — formulering, timing efter avslutat ärende, och vilka kanaler som utlöser en förfrågan går att ställa in per företag.</p></div></div>
     </div>
     <div class="faq-item">
-      <h3>Hur snabbt kan vi komma igång?</h3>
-      <p>De flesta företag är igång med chatt och e-post inom en vecka; telefonsupport och full recensionssynk följer vanligtvis vecka två, när er recensionspolicy är bekräftad.</p>
+      <button class="faq-q" type="button" aria-expanded="false">
+        <h3>Hur snabbt kan vi komma igång?</h3>
+        <span class="faq-icon" aria-hidden="true"></span>
+      </button>
+      <div class="faq-a"><div class="faq-a-inner"><p>De flesta företag är igång med chatt och e-post inom en vecka; telefonsupport och full recensionssynk följer vanligtvis vecka två, när er recensionspolicy är bekräftad.</p></div></div>
     </div>
   </div>
 </section>
 
 <section class="band" id="contact" style="border-bottom: none;">
-  <div class="cta-band">
+  <div class="cta-band reveal">
     <h2>Redo att göra bra service omöjlig att missa?</h2>
     <div style="display:flex; gap:12px; flex-wrap:wrap;">
       <a class="btn btn-ghost" href="#live-demo">Prova den levande AI-demon</a>
@@ -1015,6 +1159,56 @@
   }
   window.addEventListener("hashchange", route);
   route();
+})();
+</script>
+
+<script>
+(function () {
+  var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // Scroll reveal
+  var revealEls = Array.prototype.slice.call(document.querySelectorAll(".reveal"));
+  if (reduceMotion || !("IntersectionObserver" in window)) {
+    revealEls.forEach(function (el) { el.classList.add("in-view"); });
+  } else {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("in-view");
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15, rootMargin: "0px 0px -40px 0px" });
+    revealEls.forEach(function (el) { io.observe(el); });
+  }
+
+  // FAQ accordion (single-open)
+  var faqItems = Array.prototype.slice.call(document.querySelectorAll("#faq-list .faq-item"));
+  faqItems.forEach(function (item) {
+    var btn = item.querySelector(".faq-q");
+    btn.addEventListener("click", function () {
+      var willOpen = !item.classList.contains("open");
+      faqItems.forEach(function (other) {
+        other.classList.remove("open");
+        other.querySelector(".faq-q").setAttribute("aria-expanded", "false");
+      });
+      if (willOpen) {
+        item.classList.add("open");
+        btn.setAttribute("aria-expanded", "true");
+      }
+    });
+  });
+
+  // Cursor-following highlight on primary/accent buttons
+  if (!reduceMotion) {
+    document.querySelectorAll(".btn-primary, .btn-accent").forEach(function (btn) {
+      btn.addEventListener("pointermove", function (e) {
+        var r = btn.getBoundingClientRect();
+        btn.style.setProperty("--mx", ((e.clientX - r.left) / r.width * 100) + "%");
+        btn.style.setProperty("--my", ((e.clientY - r.top) / r.height * 100) + "%");
+      });
+    });
+  }
 })();
 </script>
 
