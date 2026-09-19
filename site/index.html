@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Adjustglow — outsourcad kundservice som blir recensioner</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Karla:wght@400;500;600;700&display=swap');
 
@@ -148,15 +149,15 @@
   .logo-mark {
     width: 27px;
     height: 27px;
-    border-radius: 50%;
-    background: radial-gradient(circle at 34% 28%, var(--accent-bright), var(--orange) 72%);
-    box-shadow: 0 0 0 1px var(--line-bright), 0 0 22px 1px rgba(232,172,46,0.35);
     flex: none;
+    display: block;
+    overflow: visible;
+    filter: drop-shadow(0 0 4px rgba(232,172,46,0.35));
     animation: logo-breathe 3.6s ease-in-out infinite;
   }
   @keyframes logo-breathe {
-    0%, 100% { box-shadow: 0 0 0 1px var(--line-bright), 0 0 14px 1px rgba(232,172,46,0.3); }
-    50% { box-shadow: 0 0 0 1px var(--line-bright), 0 0 26px 5px rgba(232,172,46,0.5); }
+    0%, 100% { filter: drop-shadow(0 0 3px rgba(232,172,46,0.3)); }
+    50% { filter: drop-shadow(0 0 8px rgba(232,172,46,0.55)); }
   }
   nav.links {
     display: flex;
@@ -770,6 +771,34 @@
 </head>
 <body>
 
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="adjustglow-mark" viewBox="0 0 120 120">
+      <g fill="var(--ink)">
+        <rect x="53.5" y="11.5" width="13" height="15" rx="3" transform="rotate(0 60 19)"></rect>
+        <rect x="82.5" y="23.5" width="13" height="15" rx="3" transform="rotate(45 89 31)"></rect>
+        <rect x="94.5" y="52.5" width="13" height="15" rx="3" transform="rotate(90 101 60)"></rect>
+        <rect x="82.5" y="81.5" width="13" height="15" rx="3" transform="rotate(135 89 89)"></rect>
+        <rect x="53.5" y="93.5" width="13" height="15" rx="3" transform="rotate(180 60 101)"></rect>
+        <rect x="24.5" y="81.5" width="13" height="15" rx="3" transform="rotate(225 31 89)"></rect>
+        <rect x="12.5" y="52.5" width="13" height="15" rx="3" transform="rotate(270 19 60)"></rect>
+        <rect x="24.5" y="23.5" width="13" height="15" rx="3" transform="rotate(315 31 31)"></rect>
+      </g>
+      <circle cx="60" cy="60" r="34" fill="none" stroke="var(--ink)" stroke-width="9"></circle>
+      <g stroke="var(--ink)" stroke-width="7.5" stroke-linecap="round" fill="none">
+        <path d="M60 34 L44 80"></path>
+        <path d="M60 34 L76 80"></path>
+      </g>
+      <path d="M60 22 L52 36 L68 36 Z" fill="var(--accent-bright)"></path>
+      <line x1="49" y1="61" x2="71" y2="61" stroke="var(--orange)" stroke-width="6" stroke-linecap="round"></line>
+      <g fill="var(--orange)">
+        <path d="M49 61 L57 55 L57 67 Z"></path>
+        <path d="M71 61 L63 55 L63 67 Z"></path>
+      </g>
+    </symbol>
+  </defs>
+</svg>
+
 <div class="glow-field" aria-hidden="true"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span></div>
 
 <div id="site-view">
@@ -789,8 +818,8 @@
 </div>
 <header>
   <a class="logo" href="#top">
-    <span class="logo-mark"></span>
-    adjustglow
+    <svg class="logo-mark" viewBox="0 0 120 120" aria-hidden="true"><use href="#adjustglow-mark"></use></svg>
+    Adjustglow
   </a>
   <nav class="links">
     <a href="#services">Tjänster</a>
@@ -1122,7 +1151,7 @@
 <footer>
   <div class="foot-top">
     <div class="foot-brand">
-      <a class="logo" href="#top"><span class="logo-mark"></span>adjustglow</a>
+      <a class="logo" href="#top"><svg class="logo-mark" viewBox="0 0 120 120" aria-hidden="true"><use href="#adjustglow-mark"></use></svg>Adjustglow</a>
       <p>Outsourcad kundservice som förvandlar lösta ärenden till recensioner — publicerade på er sajt, Google och Trustpilot.</p>
     </div>
     <div class="foot-col">
@@ -1155,7 +1184,7 @@
 
 <section class="ag-panel" id="ag-panel" hidden role="dialog" aria-label="Chatt med Adjustglow-assistenten">
   <div class="ag-head">
-    <span class="logo-mark"></span>
+    <svg class="logo-mark" viewBox="0 0 120 120" aria-hidden="true"><use href="#adjustglow-mark"></use></svg>
     <div class="ag-head-text">
       <div class="name">Adjustglow-assistenten</div>
       <div class="status">AI-driven · svarar oftast inom sekunder</div>
@@ -1327,7 +1356,7 @@
 
 <div id="demo-view" hidden>
   <div class="demo-topbar">
-    <a class="logo" href="#top"><span class="logo-mark"></span>adjustglow</a>
+    <a class="logo" href="#top"><svg class="logo-mark" viewBox="0 0 120 120" aria-hidden="true"><use href="#adjustglow-mark"></use></svg>Adjustglow</a>
     <a class="back-link" href="#top">
       <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"></path></svg>
       Tillbaka till sajten
