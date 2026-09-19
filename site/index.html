@@ -44,19 +44,30 @@
   * { box-sizing: border-box; }
   [hidden] { display: none !important; }
 
-  /* ---------- Ambient glow field (signature: the brand is literally "glow") ---------- */
+  /* ---------- Ambient glow field (signature: the brand is literally "glow") ----------
+     Note (2026-09-19 perf pass): these used to be plain circles with `filter: blur(90px)`.
+     Animating a 90px blur across three 42-60vmax full-viewport layers, forever, on every
+     page load turned out to be the main cause of real-world scroll jank (blur is one of
+     the most expensive CSS properties to keep rasterized/composited, and it never paused).
+     The soft edge is now baked directly into the radial-gradient stops instead — visually
+     equivalent, but it's a plain gradient fill with no filter pass, so it's dramatically
+     cheaper to animate continuously. */
   .glow-field { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
   .glow-field .blob {
     position: absolute;
     width: 60vmax; height: 60vmax;
     border-radius: 50%;
-    filter: blur(90px);
     opacity: 0.55;
     will-change: transform;
   }
-  .glow-field .b1 { background: radial-gradient(circle, var(--accent), transparent 62%); top: -22vmax; right: -16vmax; animation: drift-a 26s ease-in-out infinite; }
-  .glow-field .b2 { background: radial-gradient(circle, var(--orange), transparent 60%); bottom: -26vmax; left: -18vmax; opacity: 0.42; animation: drift-b 32s ease-in-out infinite; }
-  .glow-field .b3 { width: 42vmax; height: 42vmax; background: radial-gradient(circle, var(--ember), transparent 65%); top: 30vh; left: 55vw; opacity: 0.24; animation: drift-c 22s ease-in-out infinite; }
+  .glow-field .b1 { background: radial-gradient(circle, rgba(232,172,46,0.9) 0%, rgba(232,172,46,0.55) 22%, rgba(232,172,46,0.26) 42%, rgba(232,172,46,0.1) 60%, transparent 78%); top: -22vmax; right: -16vmax; animation: drift-a 26s ease-in-out infinite; }
+  .glow-field .b2 { background: radial-gradient(circle, rgba(226,99,42,0.85) 0%, rgba(226,99,42,0.5) 22%, rgba(226,99,42,0.22) 42%, rgba(226,99,42,0.08) 60%, transparent 78%); bottom: -26vmax; left: -18vmax; opacity: 0.42; animation: drift-b 32s ease-in-out infinite; }
+  .glow-field .b3 { width: 42vmax; height: 42vmax; background: radial-gradient(circle, rgba(255,90,46,0.8) 0%, rgba(255,90,46,0.45) 22%, rgba(255,90,46,0.18) 42%, rgba(255,90,46,0.06) 60%, transparent 78%); top: 30vh; left: 55vw; opacity: 0.24; animation: drift-c 22s ease-in-out infinite; }
+  /* Extra insurance: drop every non-essential loop while the page is actively being scrolled,
+     so the compositor's full budget goes to scrolling itself rather than ambient motion. */
+  body.is-scrolling .glow-field .blob,
+  body.is-scrolling .ticker-track,
+  body.is-scrolling .logo-mark { animation-play-state: paused; }
   @keyframes drift-a { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-6%, 8%) scale(1.12); } }
   @keyframes drift-b { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(8%, -6%) scale(1.08); } }
   @keyframes drift-c { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-10%, -10%) scale(0.9); } }
@@ -1409,6 +1420,21 @@
 <script>
 (function () {
   var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // Pause ambient loops (glow field, ticker, logo breathe) while actively scrolling,
+  // so the compositor isn't juggling them at the same time as scroll work.
+  if (!reduceMotion) {
+    var scrollPauseTimer = null;
+    window.addEventListener("scroll", function () {
+      if (!document.body.classList.contains("is-scrolling")) {
+        document.body.classList.add("is-scrolling");
+      }
+      clearTimeout(scrollPauseTimer);
+      scrollPauseTimer = setTimeout(function () {
+        document.body.classList.remove("is-scrolling");
+      }, 200);
+    }, { passive: true });
+  }
 
   // Scroll reveal
   var revealEls = Array.prototype.slice.call(document.querySelectorAll(".reveal"));
