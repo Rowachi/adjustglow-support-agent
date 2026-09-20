@@ -557,6 +557,7 @@
 
   /* ---------- Pricing ---------- */
   .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; align-items: stretch; }
+  .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; align-items: stretch; max-width: 720px; margin: 0 auto; }
   .price-card {
     background: var(--surface);
     border: 1px solid var(--line);
@@ -613,6 +614,22 @@
   .price-card li { list-style: none; font-size: 0.89rem; display: flex; gap: 10px; color: var(--ink); }
   .price-card li::before { content: "—"; color: var(--ink-faint); flex: none; }
   .price-note { margin-top: 24px; font-size: 0.83rem; color: var(--ink-faint); }
+  .card-pricing {
+    margin-top: 32px;
+    max-width: 720px;
+    margin-inline: auto;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-m);
+    padding: 26px 28px;
+    text-align: center;
+  }
+  .card-pricing h3 { font-size: 1rem; font-weight: 600; margin: 0 0 6px; }
+  .card-pricing .desc { font-size: 0.86rem; color: var(--ink-soft); margin: 0 0 20px; }
+  .card-pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .card-pricing-tile { display: flex; flex-direction: column; gap: 6px; }
+  .card-pricing-amount { font-family: 'Fraunces', serif; font-size: 1.3rem; font-weight: 600; color: var(--accent-bright); }
+  .card-pricing-label { font-size: 0.82rem; color: var(--ink-faint); }
 
   /* ---------- FAQ (accordion) ---------- */
   .faq { display: flex; flex-direction: column; }
@@ -683,6 +700,7 @@
     .services-grid { grid-template-columns: 1fr; }
     .svc-a, .svc-b, .svc-c, .svc-d { grid-column: 1; grid-row: auto; }
     .grid-3 { grid-template-columns: 1fr; }
+    .grid-2 { grid-template-columns: 1fr; }
     .flow { grid-template-columns: repeat(2, 1fr); gap: 28px; }
     .spotlight { grid-template-columns: 1fr; padding: 32px; }
     .foot-top { grid-template-columns: 1fr 1fr; }
@@ -693,6 +711,7 @@
     .foot-top { grid-template-columns: 1fr; }
     .cta-band { flex-direction: column; align-items: flex-start; }
     header { padding-block: 18px; }
+    .card-pricing-grid { grid-template-columns: 1fr; }
   }
 
   /* ---------- Scroll reveal ---------- */
@@ -707,6 +726,7 @@
   .flow .reveal:nth-child(5) { transition-delay: 0.32s; }
   .grid-3 .reveal:nth-child(2) { transition-delay: 0.08s; }
   .grid-3 .reveal:nth-child(3) { transition-delay: 0.16s; }
+  .grid-2 .reveal:nth-child(2) { transition-delay: 0.08s; }
 
   /* Pause below-the-fold decorative loop animations until they're actually
      visible, so they don't spend paint time while off-screen (scroll perf). */
@@ -1102,47 +1122,59 @@
 <section class="band" id="pricing">
   <div class="band-head reveal">
     <span class="eyebrow">Priser</span>
-    <h2>Planer som skalar med ärendevolym, inte gissade personalbehov.</h2>
-    <p>Alla planer inkluderar recensionsinsamling och synk. Priserna nedan är utkast — vi anpassar gärna en plan efter er ärendevolym.</p>
+    <h2>Enkla planer, prissatta per företag.</h2>
+    <p>Båda planerna inkluderar recensionsinsamling och synk till Google och Trustpilot. Fysiska NFC/QR-kort beställs separat, se priser nedan.</p>
   </div>
-  <div class="grid-3">
+  <div class="grid-2">
     <div class="price-card reveal">
       <h3>Starter</h3>
-      <div class="amount mono">4 900 kr<span>/mån</span></div>
-      <p class="desc">För mindre team med under 300 ärenden per månad.</p>
+      <div class="amount mono">249 kr<span>/mån</span></div>
+      <p class="desc">För ett företag som vill komma igång med kort och recensionsroutning.</p>
       <ul>
-        <li>Livechatt &amp; e-postsupport</li>
-        <li>Upp till 300 ärenden/månad</li>
-        <li>Recensionsinsamling &amp; synk</li>
-        <li>Delad inkorg under kontorstid</li>
+        <li>1 företag</li>
+        <li>1–2 NFC/QR-kort</li>
+        <li>Recensionsroutning</li>
+        <li>Routning till sociala medier</li>
+        <li>Privat feedback</li>
+        <li>Enkel dashboard</li>
+        <li>Grundläggande analys</li>
       </ul>
       <a class="btn btn-ghost" href="#contact">Prata med oss</a>
     </div>
     <div class="price-card featured reveal">
       <span class="price-tag">Mest valda</span>
       <h3>Growth</h3>
-      <div class="amount mono">11 900 kr<span>/mån</span></div>
-      <p class="desc">För växande företag som lägger till telefonsupport och fler öppettider.</p>
+      <div class="amount mono">649 kr<span>/mån</span></div>
+      <p class="desc">För företag med flera kort och fler medarbetare som behöver djupare insikter.</p>
       <ul>
-        <li>Livechatt, e-post &amp; telefonsupport</li>
-        <li>Upp till 1 200 ärenden/månad</li>
-        <li>Recensionsinsamling &amp; synk</li>
-        <li>Utökad täckning, 6 dagar/vecka</li>
-        <li>Månatlig kvalitets- och rapportgenomgång</li>
+        <li>Flera kort</li>
+        <li>Allt i Starter</li>
+        <li>AI-driven routning</li>
+        <li>Intelligent kundfeedback</li>
+        <li>Mer avancerad analys</li>
+        <li>Kunduppföljning</li>
+        <li>Automatisering</li>
+        <li>Fler användare/teammedlemmar</li>
       </ul>
       <a class="btn btn-accent" href="#contact">Boka en demo</a>
     </div>
-    <div class="price-card reveal">
-      <h3>Skala</h3>
-      <div class="amount">Anpassat</div>
-      <p class="desc">För företag med hög ärendevolym eller flera varumärken.</p>
-      <ul>
-        <li>Alla kanaler, dedikerad agentgrupp</li>
-        <li>Volymbaserat, utan tak</li>
-        <li>Prioriterad recensionssynk &amp; eskaleringsregler</li>
-        <li>Dedikerad kontaktperson</li>
-      </ul>
-      <a class="btn btn-ghost" href="#contact">Få en offert</a>
+  </div>
+  <div class="card-pricing reveal">
+    <h3>Fysiska NFC/QR-kort</h3>
+    <p class="desc">Beställs separat utöver planen, engångskostnad per kort.</p>
+    <div class="card-pricing-grid">
+      <div class="card-pricing-tile">
+        <div class="card-pricing-amount mono">199–299 kr</div>
+        <div class="card-pricing-label">1 kort</div>
+      </div>
+      <div class="card-pricing-tile">
+        <div class="card-pricing-amount mono">399–499 kr</div>
+        <div class="card-pricing-label">3 kort</div>
+      </div>
+      <div class="card-pricing-tile">
+        <div class="card-pricing-amount mono">799–999 kr</div>
+        <div class="card-pricing-label">10 kort</div>
+      </div>
     </div>
   </div>
   <p class="price-note">Priserna är preliminära uppskattningar och fastställs tillsammans med er innan uppstart.</p>

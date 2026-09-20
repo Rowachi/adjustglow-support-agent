@@ -43,18 +43,17 @@ automatiskt, och Adjustglow bemannar/utbildar/håller kvaliteten uppe.
 
 ## Priser
 **Priserna nedan är preliminära utkast, inte bindande offerter** — Adjustglow
-anpassar alltid en plan efter kundens faktiska ärendevolym innan uppstart.
-Var tydlig med kunden om att detta är uppskattningar.
-- **Starter** — cirka 4 900 kr/mån. För mindre team med under 300 ärenden
-  per månad. Livechatt & e-postsupport, recensionsinsamling & synk, delad
-  inkorg under kontorstid.
-- **Growth** (mest valda) — cirka 11 900 kr/mån. För växande företag som
-  lägger till telefonsupport. Livechatt, e-post & telefonsupport, upp till
-  1 200 ärenden/månad, recensionsinsamling & synk, utökad täckning 6
-  dagar/vecka, månatlig kvalitets- och rapportgenomgång.
-- **Skala** — anpassat pris. För hög ärendevolym eller flera varumärken.
-  Alla kanaler, dedikerad agentgrupp, volymbaserat utan tak, prioriterad
-  recensionssynk & eskaleringsregler, dedikerad kontaktperson.
+fastställer alltid det slutgiltiga priset tillsammans med kunden innan
+uppstart. Var tydlig med kunden om att detta är uppskattningar.
+- **Starter** — 249 kr/mån. För ett företag som vill komma igång. 1 företag,
+  1–2 NFC/QR-kort, recensionsroutning, routning till sociala medier, privat
+  feedback, enkel dashboard, grundläggande analys.
+- **Growth** (mest valda) — 649 kr/mån. För företag med flera kort och fler
+  medarbetare. Flera kort, allt i Starter, AI-driven routning, intelligent
+  kundfeedback, mer avancerad analys, kunduppföljning, automatisering, fler
+  användare/teammedlemmar.
+- **Fysiska NFC/QR-kort** (köps separat utöver planen, engångskostnad):
+  1 kort 199–299 kr, 3 kort 399–499 kr, 10 kort 799–999 kr.
 
 ## Vanliga frågor
 - **Vilka recensionsplattformar stöds?** Google-företagsprofil och
