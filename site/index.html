@@ -51,26 +51,42 @@
      the most expensive CSS properties to keep rasterized/composited, and it never paused).
      The soft edge is now baked directly into the radial-gradient stops instead — visually
      equivalent, but it's a plain gradient fill with no filter pass, so it's dramatically
-     cheaper to animate continuously. */
+     cheaper to animate continuously.
+     Note (2026-09-20 fluctuation pass): each blob's animation now eases opacity up and down
+     alongside its drift, and a fourth near-black "shade" blob drifts on its own slower loop.
+     Only `transform` and `opacity` are animated (both compositor-only, no repaint), so this
+     stays as cheap as the plain drift did — the black/gold fluctuation is an illusion built
+     from four staggered, differently-timed loops crossing each other, never from animating
+     a gradient's own color stops (which WOULD repaint every frame). */
   .glow-field { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
   .glow-field .blob {
     position: absolute;
     width: 60vmax; height: 60vmax;
     border-radius: 50%;
     opacity: 0.55;
-    will-change: transform;
+    will-change: transform, opacity;
   }
-  .glow-field .b1 { background: radial-gradient(circle, rgba(232,172,46,0.9) 0%, rgba(232,172,46,0.55) 22%, rgba(232,172,46,0.26) 42%, rgba(232,172,46,0.1) 60%, transparent 78%); top: -22vmax; right: -16vmax; animation: drift-a 26s ease-in-out infinite; }
-  .glow-field .b2 { background: radial-gradient(circle, rgba(226,99,42,0.85) 0%, rgba(226,99,42,0.5) 22%, rgba(226,99,42,0.22) 42%, rgba(226,99,42,0.08) 60%, transparent 78%); bottom: -26vmax; left: -18vmax; opacity: 0.42; animation: drift-b 32s ease-in-out infinite; }
-  .glow-field .b3 { width: 42vmax; height: 42vmax; background: radial-gradient(circle, rgba(255,90,46,0.8) 0%, rgba(255,90,46,0.45) 22%, rgba(255,90,46,0.18) 42%, rgba(255,90,46,0.06) 60%, transparent 78%); top: 30vh; left: 55vw; opacity: 0.24; animation: drift-c 22s ease-in-out infinite; }
+  .glow-field .b1 { background: radial-gradient(circle, rgba(247,203,94,0.92) 0%, rgba(232,172,46,0.55) 22%, rgba(232,172,46,0.26) 42%, rgba(232,172,46,0.1) 60%, transparent 78%); top: -22vmax; right: -16vmax; animation: drift-a 27s ease-in-out infinite; }
+  .glow-field .b2 { background: radial-gradient(circle, rgba(226,99,42,0.85) 0%, rgba(226,99,42,0.5) 22%, rgba(226,99,42,0.22) 42%, rgba(226,99,42,0.08) 60%, transparent 78%); bottom: -26vmax; left: -18vmax; opacity: 0.42; animation: drift-b 33s ease-in-out infinite; }
+  .glow-field .b3 { width: 42vmax; height: 42vmax; background: radial-gradient(circle, rgba(255,90,46,0.8) 0%, rgba(255,90,46,0.45) 22%, rgba(255,90,46,0.18) 42%, rgba(255,90,46,0.06) 60%, transparent 78%); top: 30vh; left: 55vw; opacity: 0.24; animation: drift-c 21s ease-in-out infinite; }
+  .glow-field .b4 { width: 68vmax; height: 68vmax; background: radial-gradient(circle, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.38) 32%, rgba(0,0,0,0.16) 56%, transparent 78%); top: -6vh; left: 18vw; opacity: 0.4; animation: drift-d 39s ease-in-out infinite; }
+  /* A faint static grain, layered above the blobs, for a bit of tactile depth against the
+     flat gradients — a single unchanging image, so it costs one paint and nothing more. */
+  .glow-field::after {
+    content: "";
+    position: absolute; inset: -10%;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity: 0.035;
+  }
   /* Extra insurance: drop every non-essential loop while the page is actively being scrolled,
      so the compositor's full budget goes to scrolling itself rather than ambient motion. */
   body.is-scrolling .glow-field .blob,
   body.is-scrolling .ticker-track,
   body.is-scrolling .logo-mark { animation-play-state: paused; }
-  @keyframes drift-a { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-6%, 8%) scale(1.12); } }
-  @keyframes drift-b { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(8%, -6%) scale(1.08); } }
-  @keyframes drift-c { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-10%, -10%) scale(0.9); } }
+  @keyframes drift-a { 0%,100% { transform: translate(0,0) scale(1); opacity: 0.55; } 50% { transform: translate(-6%, 8%) scale(1.14); opacity: 0.8; } }
+  @keyframes drift-b { 0%,100% { transform: translate(0,0) scale(1); opacity: 0.42; } 50% { transform: translate(8%, -6%) scale(1.08); opacity: 0.62; } }
+  @keyframes drift-c { 0%,100% { transform: translate(0,0) scale(0.9); opacity: 0.24; } 50% { transform: translate(-10%, -10%) scale(1.05); opacity: 0.44; } }
+  @keyframes drift-d { 0%,100% { transform: translate(0,0) scale(1); opacity: 0.4; } 50% { transform: translate(9%, 7%) scale(1.18); opacity: 0.18; } }
 
   /* ---------- Live status ticker (fills the top strip; a single cheap transform loop) ---------- */
   .ticker {
@@ -778,7 +794,7 @@
     .ag-fab { right: 16px; bottom: 16px; }
   }
 </style>
-<noscript><style>.reveal{opacity:1 !important;transform:none !important}.glow-field{animation-play-state:paused}.ticker-track{animation-play-state:paused}</style></noscript>
+<noscript><style>.reveal{opacity:1 !important;transform:none !important}.glow-field .blob{animation-play-state:paused}.ticker-track{animation-play-state:paused}</style></noscript>
 </head>
 <body>
 
@@ -810,7 +826,7 @@
   </defs>
 </svg>
 
-<div class="glow-field" aria-hidden="true"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span></div>
+<div class="glow-field" aria-hidden="true"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span><span class="blob b4"></span></div>
 
 <div id="site-view">
 <div class="ticker" aria-hidden="true">
