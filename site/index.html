@@ -9,16 +9,19 @@
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Karla:wght@400;500;600;700&display=swap');
 
   :root {
-    --bg: #0B0805;
-    --bg-raise: #120D08;
-    --surface: #17110A;
-    --surface-2: #1D160C;
-    --surface-sunk: #0E0A06;
+    /* 2026-09-20: swapped the canvas from a warm near-black (brown/black) to a cool
+       near-black purple, to go with the "try dark purple" pass on the ambient glow
+       field below. Same lightness steps as before, just a purple hue instead of brown. */
+    --bg: #0B0813;
+    --bg-raise: #120D1F;
+    --surface: #170F26;
+    --surface-2: #1D1530;
+    --surface-sunk: #0E0918;
     --ink: #F5EFE0;
     --ink-soft: #C9BEA4;
     --ink-faint: #857A61;
-    --line: #2C2314;
-    --line-bright: #453419;
+    --line: #2A1F42;
+    --line-bright: #3D2C5E;
     --accent: #E8AC2E;
     --accent-bright: #F7CB5E;
     --accent-ink: #1C1300;
@@ -80,9 +83,11 @@
     opacity: 0.55;
     will-change: transform, opacity;
   }
-  .glow-field .b1 { width: 92vmax; height: 92vmax; background: radial-gradient(circle, rgba(122,92,32,0.6) 0%, rgba(104,78,26,0.4) 20%, rgba(86,62,20,0.2) 40%, rgba(86,62,20,0.08) 58%, transparent 76%); top: -10vh; left: 4vw; opacity: 0.4; animation: drift-a 16s ease-in-out infinite; }
-  .glow-field .b2 { width: 86vmax; height: 86vmax; background: radial-gradient(circle, rgba(112,58,30,0.55) 0%, rgba(96,46,22,0.36) 20%, rgba(96,46,22,0.16) 40%, rgba(96,46,22,0.06) 58%, transparent 76%); bottom: -14vmax; left: -10vmax; opacity: 0.32; animation: drift-b 20s ease-in-out infinite; }
-  .glow-field .b3 { width: 52vmax; height: 52vmax; background: radial-gradient(circle, rgba(108,48,28,0.5) 0%, rgba(100,38,20,0.3) 22%, rgba(100,38,20,0.12) 42%, rgba(100,38,20,0.04) 60%, transparent 78%); top: -6vh; left: 74vw; opacity: 0.2; animation: drift-c 13s ease-in-out infinite; }
+  /* 2026-09-20: recolored from dark gold/orange to dark purple/violet, per request —
+     same gradient shape, opacity and animation, just a different hue family. */
+  .glow-field .b1 { width: 92vmax; height: 92vmax; background: radial-gradient(circle, rgba(94,54,150,0.6) 0%, rgba(80,44,130,0.4) 20%, rgba(66,36,110,0.2) 40%, rgba(66,36,110,0.08) 58%, transparent 76%); top: -10vh; left: 4vw; opacity: 0.4; animation: drift-a 16s ease-in-out infinite; }
+  .glow-field .b2 { width: 86vmax; height: 86vmax; background: radial-gradient(circle, rgba(114,42,124,0.55) 0%, rgba(94,34,102,0.36) 20%, rgba(94,34,102,0.16) 40%, rgba(94,34,102,0.06) 58%, transparent 76%); bottom: -14vmax; left: -10vmax; opacity: 0.32; animation: drift-b 20s ease-in-out infinite; }
+  .glow-field .b3 { width: 52vmax; height: 52vmax; background: radial-gradient(circle, rgba(76,44,152,0.5) 0%, rgba(66,36,132,0.3) 22%, rgba(66,36,132,0.12) 42%, rgba(66,36,132,0.04) 60%, transparent 78%); top: -6vh; left: 74vw; opacity: 0.2; animation: drift-c 13s ease-in-out infinite; }
   .glow-field .b4 { width: 100vmax; height: 100vmax; background: radial-gradient(circle, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.5) 30%, rgba(0,0,0,0.22) 54%, transparent 76%); top: 10vh; left: -14vw; opacity: 0.55; animation: drift-d 24s ease-in-out infinite; }
   /* A soft diagonal streak that sweeps the full viewport, like light catching a moving
      surface — an obvious, unmistakably-moving accent layered on top of the ambient blobs.
@@ -91,7 +96,7 @@
     position: absolute;
     top: -30%; left: 0;
     width: 70vw; height: 160%;
-    background: linear-gradient(100deg, transparent 32%, rgba(122,92,32,0.08) 47%, rgba(112,58,30,0.05) 56%, transparent 72%);
+    background: linear-gradient(100deg, transparent 32%, rgba(94,54,150,0.08) 47%, rgba(114,42,124,0.05) 56%, transparent 72%);
     will-change: transform;
     animation: sheen-sweep 11s ease-in-out infinite;
   }
@@ -594,7 +599,7 @@
   }
   .price-card.featured::after {
     content: ""; position: absolute; inset: 1px; border-radius: inherit; z-index: -1;
-    background: linear-gradient(170deg, #201607, var(--surface));
+    background: linear-gradient(170deg, #1F1330, var(--surface));
   }
   @keyframes ring-spin { to { --ring-angle: 360deg; } }
   .price-tag {
