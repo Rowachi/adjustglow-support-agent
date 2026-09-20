@@ -9,9 +9,11 @@ om du menar Lumen Cycles-demot istället.)*
 Adjustglow är outsourcad kundservice för andra företag: vi bemannar
 livechatt, e-post och telefon åt våra kunder, i deras varumärkesröst. Utöver
 själva supporten bygger vi in recensionsinsamling i samma flöde — varje löst
-ärende kan utlösa en recensionsförfrågan, och godkända recensioner
-publiceras automatiskt vidare till kundens Google-företagsprofil och
-Trustpilot-profil. Kontakt: hello@adjustglow.com.
+ärende kan utlösa en recensionsförfrågan, eller så kan slutkunden trycka
+direkt på ett fysiskt NFC/QR-kort i butik för att ge feedback utan att vänta
+på ett ärende. Godkända recensioner publiceras automatiskt vidare till
+kundens Google-företagsprofil och Trustpilot-profil. Kontakt:
+hello@adjustglow.com.
 
 ## Tjänster
 - **Livechatt & e-post** — utbildade agenter svarar i kundens varumärkesröst,
@@ -21,7 +23,8 @@ Trustpilot-profil. Kontakt: hello@adjustglow.com.
 - **Helpdesk & ärendehantering** — vi arbetar i kundens befintliga helpdesk,
   eller sätter upp en, med fullständig logg för varje konversation.
 - **Recensionsinsamling & synk** — varje löst ärende kan utlösa en
-  recensionsförfrågan; godkända recensioner publiceras automatiskt till
+  recensionsförfrågan, eller slutkunden trycker direkt på ett fysiskt
+  NFC/QR-kort i butik; godkända recensioner publiceras automatiskt till
   Google och Trustpilot.
 
 ## Så funkar det (flödet)
@@ -32,6 +35,10 @@ Trustpilot-profil. Kontakt: hello@adjustglow.com.
 4. Positiva recensioner går live på kundens varumärkta recensionssida direkt.
 5. Adjustglow skickar samma recension vidare till Google-företagsprofil och
    Trustpilot.
+
+Har kunden fysiska NFC/QR-kort i butik? Då kan slutkunden trycka direkt och
+lämna feedback utan att vänta på ett löst ärende — resten av flödet (synk
+till Google & Trustpilot) är detsamma.
 
 ## Skillnaden mot att göra det själv
 Utan Adjustglow: svarstid på timmar eller dagar, recensioner samlas sällan
@@ -46,12 +53,13 @@ automatiskt, och Adjustglow bemannar/utbildar/håller kvaliteten uppe.
 fastställer alltid det slutgiltiga priset tillsammans med kunden innan
 uppstart. Var tydlig med kunden om att detta är uppskattningar.
 - **Starter** — 249 kr/mån. För ett företag som vill komma igång. 1 företag,
-  1–2 NFC/QR-kort, recensionsroutning, routning till sociala medier, privat
-  feedback, enkel dashboard, grundläggande analys.
+  livechatt- & e-postsupport, 1–2 NFC/QR-kort, recensionsroutning, routning
+  till sociala medier, privat feedback, enkel dashboard, grundläggande
+  analys.
 - **Growth** (mest valda) — 649 kr/mån. För företag med flera kort och fler
-  medarbetare. Flera kort, allt i Starter, AI-driven routning, intelligent
-  kundfeedback, mer avancerad analys, kunduppföljning, automatisering, fler
-  användare/teammedlemmar.
+  medarbetare. Flera kort, allt i Starter, telefonsupport, AI-driven
+  routning, intelligent kundfeedback, mer avancerad analys, kunduppföljning,
+  automatisering, fler användare/teammedlemmar.
 - **Fysiska NFC/QR-kort** (köps separat utöver planen, engångskostnad):
   1 kort 199–299 kr, 3 kort 399–499 kr, 10 kort 799–999 kr.
 
