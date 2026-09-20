@@ -80,9 +80,9 @@
     opacity: 0.55;
     will-change: transform, opacity;
   }
-  .glow-field .b1 { width: 92vmax; height: 92vmax; background: radial-gradient(circle, rgba(255,221,140,0.98) 0%, rgba(247,203,94,0.7) 20%, rgba(232,172,46,0.36) 40%, rgba(232,172,46,0.14) 58%, transparent 76%); top: -10vh; left: 4vw; opacity: 0.65; animation: drift-a 16s ease-in-out infinite; }
-  .glow-field .b2 { width: 86vmax; height: 86vmax; background: radial-gradient(circle, rgba(240,130,78,0.92) 0%, rgba(226,99,42,0.6) 20%, rgba(226,99,42,0.28) 40%, rgba(226,99,42,0.1) 58%, transparent 76%); bottom: -14vmax; left: -10vmax; opacity: 0.5; animation: drift-b 20s ease-in-out infinite; }
-  .glow-field .b3 { width: 52vmax; height: 52vmax; background: radial-gradient(circle, rgba(255,120,72,0.85) 0%, rgba(255,90,46,0.5) 22%, rgba(255,90,46,0.2) 42%, rgba(255,90,46,0.07) 60%, transparent 78%); top: -6vh; left: 74vw; opacity: 0.3; animation: drift-c 13s ease-in-out infinite; }
+  .glow-field .b1 { width: 92vmax; height: 92vmax; background: radial-gradient(circle, rgba(214,168,90,0.78) 0%, rgba(196,152,72,0.52) 20%, rgba(180,132,48,0.26) 40%, rgba(180,132,48,0.1) 58%, transparent 76%); top: -10vh; left: 4vw; opacity: 0.48; animation: drift-a 16s ease-in-out infinite; }
+  .glow-field .b2 { width: 86vmax; height: 86vmax; background: radial-gradient(circle, rgba(190,100,58,0.72) 0%, rgba(176,78,32,0.46) 20%, rgba(176,78,32,0.2) 40%, rgba(176,78,32,0.07) 58%, transparent 76%); bottom: -14vmax; left: -10vmax; opacity: 0.38; animation: drift-b 20s ease-in-out infinite; }
+  .glow-field .b3 { width: 52vmax; height: 52vmax; background: radial-gradient(circle, rgba(200,92,56,0.65) 0%, rgba(200,72,36,0.38) 22%, rgba(200,72,36,0.15) 42%, rgba(200,72,36,0.05) 60%, transparent 78%); top: -6vh; left: 74vw; opacity: 0.24; animation: drift-c 13s ease-in-out infinite; }
   .glow-field .b4 { width: 100vmax; height: 100vmax; background: radial-gradient(circle, rgba(0,0,0,0.68) 0%, rgba(0,0,0,0.42) 30%, rgba(0,0,0,0.18) 54%, transparent 76%); top: 10vh; left: -14vw; opacity: 0.45; animation: drift-d 24s ease-in-out infinite; }
   /* A soft diagonal streak that sweeps the full viewport, like light catching a moving
      surface — an obvious, unmistakably-moving accent layered on top of the ambient blobs.
@@ -91,7 +91,7 @@
     position: absolute;
     top: -30%; left: 0;
     width: 70vw; height: 160%;
-    background: linear-gradient(100deg, transparent 32%, rgba(255,221,140,0.16) 47%, rgba(255,144,72,0.1) 56%, transparent 72%);
+    background: linear-gradient(100deg, transparent 32%, rgba(214,168,90,0.11) 47%, rgba(190,100,58,0.07) 56%, transparent 72%);
     will-change: transform;
     animation: sheen-sweep 11s ease-in-out infinite;
   }
@@ -109,9 +109,9 @@
   body.is-scrolling .glow-field .sheen,
   body.is-scrolling .ticker-track,
   body.is-scrolling .logo-mark { animation-play-state: paused; }
-  @keyframes drift-a { 0%,100% { transform: translate(0,0) scale(1) rotate(0deg); opacity: 0.65; } 50% { transform: translate(-11%, 10%) scale(1.2) rotate(6deg); opacity: 1; } }
-  @keyframes drift-b { 0%,100% { transform: translate(0,0) scale(1) rotate(0deg); opacity: 0.5; } 50% { transform: translate(10%, -9%) scale(1.16) rotate(-5deg); opacity: 0.85; } }
-  @keyframes drift-c { 0%,100% { transform: translate(0,0) scale(0.92); opacity: 0.3; } 50% { transform: translate(-15%, -15%) scale(1.15); opacity: 0.6; } }
+  @keyframes drift-a { 0%,100% { transform: translate(0,0) scale(1) rotate(0deg); opacity: 0.48; } 50% { transform: translate(-11%, 10%) scale(1.2) rotate(6deg); opacity: 0.75; } }
+  @keyframes drift-b { 0%,100% { transform: translate(0,0) scale(1) rotate(0deg); opacity: 0.38; } 50% { transform: translate(10%, -9%) scale(1.16) rotate(-5deg); opacity: 0.62; } }
+  @keyframes drift-c { 0%,100% { transform: translate(0,0) scale(0.92); opacity: 0.24; } 50% { transform: translate(-15%, -15%) scale(1.15); opacity: 0.45; } }
   @keyframes drift-d { 0%,100% { transform: translate(0,0) scale(1); opacity: 0.45; } 50% { transform: translate(13%, 9%) scale(1.28); opacity: 0.18; } }
   @keyframes sheen-sweep { 0%, 100% { transform: translateX(-38vw) rotate(6deg); } 50% { transform: translateX(38vw) rotate(6deg); } }
 
@@ -164,9 +164,15 @@
     color: var(--ink);
     font-family: 'Karla', ui-sans-serif, system-ui, sans-serif;
     font-size: 16px;
+    font-weight: 500;
     line-height: 1.55;
     -webkit-font-smoothing: antialiased;
     padding-inline: max(20px, calc((100% - 1180px) / 2));
+    /* Keeps copy legible over the moving glow field regardless of what's passing
+       behind it at any given moment — a tight dark shadow for crisp edges, plus a
+       wider soft one so the text always reads as a layer above the glow rather
+       than blending into it. Text-only, so it costs nothing on the scroll budget. */
+    text-shadow: 0 1px 2px rgba(8,5,2,0.55), 0 3px 14px rgba(8,5,2,0.3);
   }
 
   h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; text-wrap: balance; margin: 0; color: var(--ink); }
