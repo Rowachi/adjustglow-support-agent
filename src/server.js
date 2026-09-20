@@ -36,7 +36,7 @@ app.get("/api/health", (_req, res) => {
 // ---- Web chat channel ----
 app.post("/api/chat", async (req, res) => {
   try {
-    const { message, conversationId: incomingId, customer } = req.body || {};
+    const { message, conversationId: incomingId, customer, persona } = req.body || {};
     if (typeof message !== "string" || !message.trim()) {
       return badRequest(res, "message is required");
     }
@@ -51,6 +51,11 @@ app.post("/api/chat", async (req, res) => {
       channel: "chat",
       history: convo.messages.map((m) => ({ role: m.role, content: m.content })),
       userMessage: message,
+      // Optional persona switch so this one deployed service can also answer
+      // as Adjustglow itself (the chat widget on adjustglow.com sends
+      // persona: "adjustglow"); omitted/unrecognized falls back to the
+      // default Livedemo persona, so existing callers are unaffected.
+      persona,
       onFlag: (flag) =>
         addReviewItem({ conversationId, channel: "chat", ...flag }),
     });

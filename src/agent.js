@@ -1,5 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { KNOWLEDGE_BASE } from "./knowledgeBase.js";
+import { KNOWLEDGE_BASE, ADJUSTGLOW_KNOWLEDGE_BASE } from "./knowledgeBase.js";
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -15,6 +15,21 @@ const anthropic = new Anthropic({
 const MODEL = process.env.ANTHROPIC_MODEL || "claude-sonnet-4-6";
 const BUSINESS_NAME = process.env.BUSINESS_NAME || "the business";
 const MAX_TOOL_ROUNDS = 4;
+
+// Two personas share this one deployed backend:
+//  - "default"    the public Livedemo (Lumen Cycles, or whatever
+//                  BUSINESS_NAME/knowledge-base.md is set to) — unchanged
+//                  behavior for any caller that doesn't pass a persona.
+//  - "adjustglow" Adjustglow's own chat widget on adjustglow.com, answering
+//                  about Adjustglow's own services/pricing/FAQ instead.
+const PERSONAS = {
+  default: { businessName: BUSINESS_NAME, knowledgeBase: KNOWLEDGE_BASE },
+  adjustglow: { businessName: "Adjustglow", knowledgeBase: ADJUSTGLOW_KNOWLEDGE_BASE },
+};
+
+function resolvePersona(personaKey) {
+  return PERSONAS[personaKey] || PERSONAS.default;
+}
 
 const TOOLS = [
   {
@@ -43,18 +58,18 @@ const TOOLS = [
   },
 ];
 
-function buildSystemPrompt(channel) {
+function buildSystemPrompt(channel, persona) {
   const channelNote =
     channel === "email"
-      ? `Du svarar via e-post. Skriv ett komplett svar: en kort hälsning, svaret, och en avslutning från "${BUSINESS_NAME} Support". Skriv ingen ämnesrad, bara brödtexten.`
+      ? `Du svarar via e-post. Skriv ett komplett svar: en kort hälsning, svaret, och en avslutning från "${persona.businessName} Support". Skriv ingen ämnesrad, bara brödtexten.`
       : "Du svarar i en livechatt. Håll svaren korta och samtalsvänliga — några meningar, inte en uppsats.";
 
-  return `Du är AI-kundsupportagenten för ${BUSINESS_NAME}. Det finns inga mänskliga agenter i den här kanalen idag — du är hela supportupplevelsen för varje meddelande som kommer in här. Svara alltid på svenska, oavsett vilket språk kunden skriver på, om inte kunden uttryckligen ber om ett annat språk. Tala alltid som "${BUSINESS_NAME}", i första person plural ("vi"), varmt, rakt på sak och självsäkert. Hitta aldrig på policy: använd bara det som står i kunskapsbasen nedan. Om något inte täcks, säg det ärligt istället för att gissa, och överväg att flagga det.
+  return `Du är AI-kundsupportagenten för ${persona.businessName}. Det finns inga mänskliga agenter i den här kanalen idag — du är hela supportupplevelsen för varje meddelande som kommer in här. Svara alltid på svenska, oavsett vilket språk kunden skriver på, om inte kunden uttryckligen ber om ett annat språk. Tala alltid som "${persona.businessName}", i första person plural ("vi"), varmt, rakt på sak och självsäkert. Hitta aldrig på policy: använd bara det som står i kunskapsbasen nedan. Om något inte täcks, säg det ärligt istället för att gissa, och överväg att flagga det.
 
 ${channelNote}
 
 --- KUNSKAPSBAS (den enda källan till sanning för policy, frakt, returer, garanti, ordrar) ---
-${KNOWLEDGE_BASE}
+${persona.knowledgeBase}
 --- SLUT PÅ KUNSKAPSBAS ---
 
 Använd verktyget flag_for_review exakt enligt instruktionerna i avsnittet "När du ska flagga för en mänsklig specialist" ovan. Att flagga är en anteckning för uppföljning, inte en överlämning: fortsätt hjälpa kunden i samma svar efter att du flaggat något.
@@ -70,10 +85,13 @@ Om en kund direkt frågar om de pratar med en människa eller en AI, eller ber o
  * @param {{role: "user"|"assistant", content: string}[]} args.history - prior turns, oldest first
  * @param {string} args.userMessage - the new incoming message
  * @param {(flag: {severity: string, reason: string, summary: string}) => void} [args.onFlag]
+ * @param {string} [args.persona] - "default" (the public Livedemo) or
+ *   "adjustglow" (Adjustglow's own site widget); unset behaves exactly like
+ *   "default" so existing callers are unaffected.
  * @returns {Promise<{reply: string, flags: object[]}>}
  */
-export async function runTurn({ channel, history, userMessage, onFlag }) {
-  const system = buildSystemPrompt(channel);
+export async function runTurn({ channel, history, userMessage, onFlag, persona }) {
+  const system = buildSystemPrompt(channel, resolvePersona(persona));
 
   // Working copy for this turn's internal tool-use loop. We deliberately do
   // NOT persist raw tool_use/tool_result blocks into long-term history —

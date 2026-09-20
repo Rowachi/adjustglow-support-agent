@@ -1228,18 +1228,13 @@
 
 <script>
 (function () {
-  var RULES = [
-    "Du är Adjustglow-assistenten, inbäddad på Adjustglows egen marknadsföringssajt. Svara alltid på svenska.",
-    "Adjustglow tillhandahåller outsourcad kundservice (livechatt, e-post, telefon, helpdesk/ärendehantering) åt andra företag, och samlar in kundrecensioner från lösta supportkonversationer, som automatiskt synkas till Google-företagsprofil och Trustpilot.",
-    "De som chattar med dig är nästan alltid företagare eller chefer som utvärderar om de ska anlita Adjustglow för sin egen kundservice och recensionshantering.",
-    "Fakta du kan lita på: Planerna är Starter (4 900 kr/mån, upp till 300 ärenden/månad, livechatt & e-post, support under kontorstid), Growth (11 900 kr/mån, upp till 1 200 ärenden/månad, livechatt + e-post + telefon, täckning 6 dagar/vecka, månatlig kvalitets- och rapportgenomgång, märkt 'mest valda'), och Skala (anpassad prissättning, alla kanaler, dedikerad agentgrupp, ingen volymgräns, dedikerad kontaktperson). Alla planer inkluderar recensionsinsamling och synk till Google-företagsprofil och Trustpilot. Typisk uppstart: chatt & e-post igång inom cirka en vecka; telefonsupport och full recensionssynk följer vecka två när företagets recensionspolicy är bekräftad. Recensionspolicyn (vad som kvalificerar, vad som hålls för uppföljning) bestäms alltid av kundföretaget, inte av Adjustglow. Mänskliga agenter hanterar varje konversation; en bot kan triagera enkla återkommande frågor om kunden vill det. Priserna på sajten är preliminära uppskattningar som fastställs innan uppstart.",
-    "Svara på frågor om tjänster, priser, hur recensionssynken fungerar, uppstartstid, och allmänna frågor om att outsourca kundservice, i en varm, självsäker och rak ton utan corporate-jargong. Håll svaren korta — några meningar, inte en uppsats — om inte kunden ber om mer detalj.",
-    "För allt som kräver en riktig offert, avtalsvillkor, eller detaljer du inte är säker på: be dem boka en demo eller mejla hello@adjustglow.com istället för att gissa.",
-    "Du är inte en allmän assistent: om du får en fråga som inte rör Adjustglow eller kundservice, avböj kort och styr tillbaka till hur Adjustglow kan hjälpa deras företag."
-  ].join("\n\n");
-
-  var turns = [{ role: "user", content: RULES }];
-  var samplePromise = null;
+  // Backend: the same Adjustglow support-agent service that powers the
+  // "Livedemo" (Lumen Cycles) — see src/agent.js's PERSONAS — answering
+  // here as Adjustglow itself via persona: "adjustglow". (Previously this
+  // called window.claude.use("sample"), an API that only exists inside a
+  // Claude-Artifact-hosted page; it never worked on this real domain.)
+  var AGENT_API = "https://adjustglow-support-agent.onrender.com/api/chat";
+  var conversationId = null;
   var busy = false;
   var ctl = null;
 
@@ -1252,16 +1247,6 @@
   var closeBtn = document.getElementById("ag-close");
   var chipsEl = document.getElementById("ag-chips");
   var stopBtn = document.getElementById("ag-stop");
-
-  function getSample() {
-    if (!samplePromise) {
-      samplePromise = (window.claude && window.claude.use)
-        ? window.claude.use("sample").catch(function () { return null; })
-        : Promise.resolve(null);
-    }
-    return samplePromise;
-  }
-  getSample();
 
   function openPanel() {
     panel.hidden = false;
@@ -1298,53 +1283,44 @@
     if (!text || busy) { return; }
     chipsEl.hidden = true;
     addBubble("user", text);
-    turns.push({ role: "user", content: text });
-    if (turns.length > 13) { turns = [turns[0]].concat(turns.slice(turns.length - 12)); }
     inputEl.value = "";
     setBusy(true);
 
-    getSample().then(function (sample) {
-      if (!sample) {
-        addBubble("bot", "Assistenten är inte tillgänglig just nu — mejla hello@adjustglow.com så hör vi av oss direkt.");
-        setBusy(false);
-        return;
+    var thinking = addBubble("bot", "Tänker…");
+    thinking.classList.add("ag-thinking");
+    ctl = new AbortController();
+
+    // The backend runs on a free instance that can take up to ~a minute to
+    // wake up after sitting idle — give an honest heads-up instead of
+    // leaving "Tänker…" looking stuck.
+    var wakeupTimer = setTimeout(function () {
+      thinking.textContent = "Väcker assistenten — den vilar när ingen använt den på ett tag. Svarar inom kort…";
+    }, 4000);
+
+    fetch(AGENT_API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      signal: ctl.signal,
+      body: JSON.stringify({ message: text, conversationId: conversationId, persona: "adjustglow" })
+    }).then(function (res) {
+      if (!res.ok) { throw { code: "http_" + res.status }; }
+      return res.json();
+    }).then(function (data) {
+      clearTimeout(wakeupTimer);
+      thinking.classList.remove("ag-thinking");
+      thinking.textContent = data.reply || "Tack för att du hör av dig — kan du berätta lite mer om vad du behöver hjälp med?";
+      conversationId = data.conversationId || conversationId;
+    }).catch(function (e) {
+      clearTimeout(wakeupTimer);
+      thinking.classList.remove("ag-thinking");
+      if (e && e.name === "AbortError") {
+        thinking.textContent = "Stoppad.";
+      } else {
+        thinking.textContent = "Assistenten är inte tillgänglig just nu — mejla hello@adjustglow.com så hör vi av oss direkt.";
       }
-
-      var thinking = addBubble("bot", "Tänker…");
-      thinking.classList.add("ag-thinking");
-      ctl = new AbortController();
-
-      sample(turns, {
-        modelTier: "quick",
-        cache: false,
-        signal: ctl.signal,
-        onText: function (update) {
-          thinking.classList.remove("ag-thinking");
-          thinking.textContent = update.text;
-          messagesEl.scrollTop = messagesEl.scrollHeight;
-        }
-      }).then(function (result) {
-        thinking.classList.remove("ag-thinking");
-        thinking.textContent = result.text;
-        turns.push({ role: "assistant", content: result.text });
-      }).catch(function (e) {
-        var code = e && e.code;
-        thinking.classList.remove("ag-thinking");
-        if (code === "cancelled") {
-          thinking.textContent = e.text || "Stoppad.";
-        } else if (code === "not_granted") {
-          thinking.textContent = "Det verkar som att den här sidan inte får använda Claude åt dig just nu — mejla hello@adjustglow.com så hjälper en riktig person dig.";
-        } else if (code === "rate_limited") {
-          thinking.textContent = "Vi får in många frågor just nu — vänta en liten stund och försök igen.";
-        } else if (code === "refused" || code === "empty_completion") {
-          thinking.textContent = "Kan du formulera om det? Jag vill vara säker på att jag svarar på rätt fråga.";
-        } else {
-          thinking.textContent = (e && e.text) ? e.text : "Något gick fel på vår sida — testa gärna igen, eller mejla hello@adjustglow.com?";
-        }
-      }).finally(function () {
-        setBusy(false);
-        ctl = null;
-      });
+    }).finally(function () {
+      setBusy(false);
+      ctl = null;
     });
   }
 
