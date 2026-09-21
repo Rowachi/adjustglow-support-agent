@@ -17,16 +17,16 @@
   }
   * { box-sizing: border-box; }
   ::selection { background: var(--accent); color: var(--accent-ink); }
-  .glow-field { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
-  .glow-field span {
-    position: absolute; width: 60vmax; height: 60vmax; border-radius: 50%;
-    filter: blur(90px); opacity: 0.4; will-change: transform;
+  /* 2026-09-21: replaced the blurred, animated glow-field blobs (filter: blur(90px)
+     on two large absolutely-positioned elements — the exact pattern the main site's
+     own design notes flag as a proven scroll-jank source) with the same static,
+     near-zero-cost noise layer the main site now uses. Matches the site's texture
+     too, so this demo page and adjustglow.com read as one brand. */
+  .grain {
+    position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: 0.05;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    background-repeat: repeat;
   }
-  .glow-field .b1 { background: radial-gradient(circle, var(--accent), transparent 62%); top: -26vmax; right: -18vmax; animation: drift-a 26s ease-in-out infinite; }
-  .glow-field .b2 { background: radial-gradient(circle, var(--orange), transparent 60%); bottom: -28vmax; left: -20vmax; opacity: 0.32; animation: drift-b 32s ease-in-out infinite; }
-  @keyframes drift-a { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-6%, 8%) scale(1.1); } }
-  @keyframes drift-b { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(8%, -6%) scale(1.08); } }
-  @media (prefers-reduced-motion: reduce) { .glow-field span { animation: none !important; } }
   body {
     margin: 0;
     background: var(--bg);
@@ -110,7 +110,7 @@
 </style>
 </head>
 <body>
-  <div class="glow-field" aria-hidden="true"><span class="b1"></span><span class="b2"></span></div>
+  <div class="grain" aria-hidden="true"></div>
   <div class="topbar">
     <div class="dot"></div>
     <div class="brand">Lumen Cycles</div>
