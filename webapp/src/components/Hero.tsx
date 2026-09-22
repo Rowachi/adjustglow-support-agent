@@ -39,8 +39,8 @@ export function Hero() {
         <div className="relative mx-auto w-full max-w-[420px] md:max-w-none">
           <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[28px] border border-line-bright bg-surface shadow-[0_1px_2px_rgba(0,0,0,0.5),0_36px_70px_-28px_rgba(0,0,0,0.75)]">
             <Image
-              src="/images/hero-owner.jpg"
-              alt="Företagare läser en ny femstjärnig recension på sin telefon bakom disken i sin butik"
+              src="/images/agent-desk.jpg"
+              alt="Supportagent med headset ler medan han hjälper en kund via telefon vid sitt skrivbord"
               fill
               sizes="(min-width: 768px) 420px, 90vw"
               className="object-cover"

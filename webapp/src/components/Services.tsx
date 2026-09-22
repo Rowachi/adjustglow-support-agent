@@ -45,8 +45,8 @@ export function Services() {
             className="group relative flex flex-col justify-end overflow-hidden rounded-2xl border border-line-bright lg:row-span-2 lg:min-h-[420px]"
           >
             <Image
-              src="/images/agent-desk.jpg"
-              alt="Supportagent med headset ler medan han hjälper en kund via telefon vid sitt skrivbord"
+              src="/images/hero-owner.jpg"
+              alt="Företagare läser en ny femstjärnig recension på sin telefon bakom disken i sin butik"
               fill
               sizes="(min-width: 1024px) 33vw, 100vw"
               className="object-cover"
