@@ -35,7 +35,7 @@ const TOOLS = [
   {
     name: "flag_for_review",
     description:
-      "Log this conversation for a human specialist to look at later. Use it for refund/goodwill requests over 5000 SEK, legal threats or chargebacks, injury or safety reports, abusive language, an issue repeating a third time unresolved, or anything the knowledge base doesn't clearly cover. Flagging does NOT end the conversation — after calling this, keep responding to the customer normally.",
+      "Log this conversation for a human specialist to look at later. Use it for refund/goodwill requests over 5000 SEK, legal threats or chargebacks, injury or safety reports, abusive language, an issue that's still unresolved after two attempts to help, or anything the knowledge base doesn't clearly cover. Flagging does NOT end the conversation — after calling this, keep responding to the customer normally.",
     input_schema: {
       type: "object",
       properties: {
@@ -46,7 +46,7 @@ const TOOLS = [
         },
         reason: {
           type: "string",
-          description: "Short category, e.g. 'refund over threshold', 'safety report', 'abusive language'.",
+          description: "Short category, e.g. 'refund over threshold', 'safety report', 'abusive language', 'unresolved after retries'.",
         },
         summary: {
           type: "string",
@@ -72,7 +72,9 @@ ${channelNote}
 ${persona.knowledgeBase}
 --- SLUT PÅ KUNSKAPSBAS ---
 
-Använd verktyget flag_for_review exakt enligt instruktionerna i avsnittet "När du ska flagga för en mänsklig specialist" ovan. Att flagga är en anteckning för uppföljning, inte en överlämning: fortsätt hjälpa kunden i samma svar efter att du flaggat något.
+Använd verktyget flag_for_review exakt enligt instruktionerna i dess beskrivning. Att flagga är en anteckning för uppföljning, inte en överlämning: fortsätt hjälpa kunden i samma svar efter att du flaggat något.
+
+Undvik återvändsgränder: om du märker att du redan gett ett liknande svar en gång utan att det löste kundens problem, eller om kunden uttrycker tydlig frustration (t.ex. versaler, "detta fungerar inte", upprepar samma fråga), sluta omformulera samma svar en tredje gång. Flagga det istället med flag_for_review (reason: "unresolved after retries" eller "frustration") och erbjud direkt, i samma svar, att koppla kunden vidare — t.ex. maila hello@adjustglow.com eller boka ett samtal — snarare än att fortsätta i en loop.
 
 Om en kund direkt frågar om de pratar med en människa eller en AI, eller ber om att få prata med en person, var ärlig: supporten här sköts av AI, du flaggar allt som behöver en specialist, och ge dem eskaleringskontakten från kunskapsbasen som alternativ. Berätta inte oombedd att du är en AI.`;
 }
@@ -88,9 +90,15 @@ Om en kund direkt frågar om de pratar med en människa eller en AI, eller ber o
  * @param {string} [args.persona] - "default" (the public Livedemo) or
  *   "adjustglow" (Adjustglow's own site widget); unset behaves exactly like
  *   "default" so existing callers are unaffected.
+ * @param {(delta: string) => void} [args.onTextDelta] - when provided, the
+ *   reply is generated via the streaming API and each new chunk of text is
+ *   passed to this callback as soon as it's produced, in addition to being
+ *   returned in full once the turn completes. Omit for a plain, non-streamed
+ *   call (used by the email channel and any caller that doesn't need live
+ *   token-by-token output).
  * @returns {Promise<{reply: string, flags: object[]}>}
  */
-export async function runTurn({ channel, history, userMessage, onFlag, persona }) {
+export async function runTurn({ channel, history, userMessage, onFlag, persona, onTextDelta }) {
   const system = buildSystemPrompt(channel, resolvePersona(persona));
 
   // Working copy for this turn's internal tool-use loop. We deliberately do
@@ -106,18 +114,56 @@ export async function runTurn({ channel, history, userMessage, onFlag, persona }
   let finalText = "";
 
   for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
-    const response = await anthropic.messages.create({
-      model: MODEL,
-      max_tokens: 700,
-      system,
-      messages: workingMessages,
-      tools: TOOLS,
-    });
+    let response;
+
+    if (onTextDelta) {
+      // Streaming path: forward each text delta to the caller as it's
+      // produced (real-time, token-by-token), then resolve to the same
+      // shape of final Message the non-streaming call would have returned.
+      //
+      // If an earlier round already produced visible text (e.g. the model
+      // wrote a line, then called flag_for_review, and is now continuing
+      // in a fresh round after the tool result), inject the same "\n"
+      // separator into the live stream that finalText's own bookkeeping
+      // below uses — otherwise what streams to the client reads as one
+      // run-on sentence ("...åt dig.Tack, en människa...") even though
+      // the stored/final text correctly has a line break there.
+      let roundFirstDelta = true;
+      const stream = anthropic.messages.stream({
+        model: MODEL,
+        max_tokens: 700,
+        system,
+        messages: workingMessages,
+        tools: TOOLS,
+      });
+      stream.on("text", (delta) => {
+        if (!delta) return;
+        if (roundFirstDelta) {
+          roundFirstDelta = false;
+          if (finalText) onTextDelta("\n");
+        }
+        onTextDelta(delta);
+      });
+      response = await stream.finalMessage();
+    } else {
+      response = await anthropic.messages.create({
+        model: MODEL,
+        max_tokens: 700,
+        system,
+        messages: workingMessages,
+        tools: TOOLS,
+      });
+    }
 
     const toolUses = response.content.filter((b) => b.type === "tool_use");
     const textBlocks = response.content.filter((b) => b.type === "text");
-    if (textBlocks.length) {
-      finalText = textBlocks.map((b) => b.text).join("\n").trim();
+    const roundText = textBlocks.map((b) => b.text).join("\n").trim();
+    if (roundText) {
+      // Concatenate across rounds rather than overwrite: if the model wrote
+      // any text before calling a tool (round 1) and more text after the
+      // tool result comes back (round 2), both were shown to the user as
+      // they streamed, so both belong in what gets stored.
+      finalText = finalText ? `${finalText}\n${roundText}` : roundText;
     }
 
     if (toolUses.length === 0) break;
@@ -162,7 +208,59 @@ export async function runTurn({ channel, history, userMessage, onFlag, persona }
   if (!finalText) {
     finalText =
       "Tack för att du hör av dig — kan du berätta lite mer om vad du behöver hjälp med?";
+    if (onTextDelta) onTextDelta(finalText);
   }
 
   return { reply: finalText, flags };
+}
+
+/**
+ * Suggest 2-3 short, contextual follow-up questions a customer might ask
+ * next, given the message they just sent and the reply they just got. This
+ * is a small, separate, non-streamed call (cheap, low max_tokens) run right
+ * after the main reply finishes — mirrors the "suggested next question"
+ * pattern used by most modern support-AI products (e.g. Intercom Fin,
+ * Decagon) to guide the conversation forward instead of leaving the
+ * customer facing a blank input box.
+ *
+ * Never throws: on any failure (bad JSON, API error) it resolves to [],
+ * since suggestions are a nice-to-have and must never break the main chat
+ * flow if something goes wrong.
+ *
+ * @param {object} args
+ * @param {string} args.userMessage
+ * @param {string} args.reply
+ * @param {string} [args.persona]
+ * @returns {Promise<string[]>}
+ */
+export async function suggestFollowUps({ userMessage, reply, persona }) {
+  try {
+    const p = resolvePersona(persona);
+    const system = `Du föreslår korta uppföljningsfrågor på svenska som en kund skulle kunna ställa härnäst till ${p.businessName}s supportassistent, baserat på den senaste utväxlingen nedan. Svara ENDAST med en JSON-array av 0-3 strängar, t.ex. ["Vad kostar Growth?","Hur lång är uppsägningstiden?"] — ingen annan text, ingen förklaring, inga backticks. Håll varje fråga kort (helst under 6 ord) och naturlig, som något en riktig kund skulle skriva. Om samtalet redan är avslutat eller inget naturligt uppföljningsförslag finns, svara med en tom array: [].`;
+
+    const msg = await anthropic.messages.create({
+      model: MODEL,
+      max_tokens: 150,
+      system,
+      messages: [
+        {
+          role: "user",
+          content: `Kundens meddelande: ${userMessage}\n\nAssistentens svar: ${reply}`,
+        },
+      ],
+    });
+
+    const text = msg.content
+      .filter((b) => b.type === "text")
+      .map((b) => b.text)
+      .join("")
+      .trim();
+    const match = text.match(/\[[\s\S]*\]/);
+    const parsed = JSON.parse(match ? match[0] : text);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter((s) => typeof s === "string" && s.trim()).slice(0, 3);
+  } catch (e) {
+    console.error("suggestFollowUps failed (non-fatal):", e?.message || e);
+    return [];
+  }
 }

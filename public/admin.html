@@ -9,11 +9,12 @@
     --bg: #FAF8F4; --surface: #FFFFFF; --surface-sunk: #F1EEE6;
     --ink: #17140F; --ink-soft: #5A5245; --ink-faint: #948B79;
     --line: #E7E1D4; --accent: #E7A926; --accent-ink: #251801; --orange: #D9581B;
-    --urgent: #C0392B;
+    --urgent: #C0392B; --good: #3A7D44;
   }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--ink); font-family: ui-sans-serif, system-ui, sans-serif; padding: 24px; }
   h1 { font-size: 1.3rem; margin: 0 0 4px; }
+  h2 { font-size: 1.05rem; margin: 32px 0 4px; }
   .sub { color: var(--ink-soft); margin: 0 0 20px; font-size: 0.9rem; }
   table { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
   th, td { text-align: left; padding: 10px 12px; font-size: 0.85rem; border-bottom: 1px solid var(--line); vertical-align: top; }
@@ -28,6 +29,15 @@
   button:hover { border-color: var(--accent); }
   .empty { padding: 30px; text-align: center; color: var(--ink-faint); }
   .convo { white-space: pre-wrap; font-size: 0.78rem; max-width: 420px; }
+  .stat-row { display: flex; gap: 12px; margin-bottom: 8px; }
+  .stat-card { flex: 1; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+  .stat-num { font-size: 1.5rem; font-weight: 700; }
+  .stat-num.up { color: var(--good); }
+  .stat-num.down { color: var(--urgent); }
+  .stat-label { font-size: 0.75rem; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.04em; }
+  .rating { font-weight: 700; }
+  .rating.up { color: var(--good); }
+  .rating.down { color: var(--urgent); }
 </style>
 </head>
 <body>
@@ -35,8 +45,13 @@
   <p class="sub">Everything the AI agent flagged for a human to look at. Resolved items stay listed, dimmed, for a record.</p>
   <div id="root">Loading…</div>
 
+  <h2>Feedback (👍 / 👎 on individual replies)</h2>
+  <p class="sub">What visitors thought of each reply, most recent first. A run of 👎 on the same topic is worth reading closely.</p>
+  <div id="feedback-root">Loading…</div>
+
 <script>
   const root = document.getElementById('root');
+  const feedbackRoot = document.getElementById('feedback-root');
 
   function sevClass(sev) { return 'sev sev-' + (sev || 'medium'); }
 
@@ -79,11 +94,37 @@
       '</tr>';
   }
 
+  async function loadFeedback() {
+    const res = await fetch('/api/feedback');
+    const items = await res.json();
+    if (!items.length) {
+      feedbackRoot.innerHTML = '<div class="empty">No feedback yet.</div>';
+      return;
+    }
+    const up = items.filter((i) => i.rating === 'up').length;
+    const down = items.filter((i) => i.rating === 'down').length;
+    const rows = items.slice(0, 100).map((item) => (
+      '<tr>' +
+      '<td class="rating ' + item.rating + '">' + (item.rating === 'up' ? '👍' : '👎') + '</td>' +
+      '<td>' + escapeHtml(item.messageText || '') + '</td>' +
+      '<td>' + (item.persona || 'default') + '</td>' +
+      '<td>' + new Date(item.at).toLocaleString() + '</td>' +
+      '</tr>'
+    )).join('');
+    feedbackRoot.innerHTML =
+      '<div class="stat-row">' +
+      '<div class="stat-card"><div class="stat-num up">' + up + '</div><div class="stat-label">👍 Thumbs up</div></div>' +
+      '<div class="stat-card"><div class="stat-num down">' + down + '</div><div class="stat-label">👎 Thumbs down</div></div>' +
+      '</div>' +
+      '<table><thead><tr><th></th><th>Reply</th><th>Persona</th><th>When</th></tr></thead><tbody>' + rows + '</tbody></table>';
+  }
+
   function escapeHtml(s) {
     return String(s || '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
 
   load();
+  loadFeedback();
 </script>
 </body>
 </html>

@@ -11,6 +11,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = path.join(__dirname, "..", "data");
 const CONVERSATIONS_FILE = path.join(DATA_DIR, "conversations.json");
 const REVIEW_QUEUE_FILE = path.join(DATA_DIR, "review-queue.json");
+const FEEDBACK_FILE = path.join(DATA_DIR, "feedback.json");
 
 function loadJson(file, fallback) {
   try {
@@ -27,6 +28,7 @@ function saveJson(file, data) {
 
 let conversations = loadJson(CONVERSATIONS_FILE, {}); // id -> conversation
 let reviewQueue = loadJson(REVIEW_QUEUE_FILE, []); // array of flag items
+let feedback = loadJson(FEEDBACK_FILE, []); // array of thumbs up/down items
 
 export function getConversation(id) {
   return conversations[id] || null;
@@ -82,4 +84,25 @@ export function resolveReviewItem(id) {
     saveJson(REVIEW_QUEUE_FILE, reviewQueue);
   }
   return item || null;
+}
+
+// ---- Feedback (thumbs up/down on individual replies) ----
+// A lightweight quality signal, the same spirit as the "CSAT"/quality
+// scoring most support-AI products surface (e.g. Intercom Fin's CX Score) —
+// here it's just a plain log a human can skim in admin.html, not a scored
+// pipeline, but it's enough to notice a reply that's landing badly.
+export function addFeedback(item) {
+  const record = {
+    id: `fb_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+    at: new Date().toISOString(),
+    ...item,
+  };
+  feedback.unshift(record);
+  if (feedback.length > 500) feedback = feedback.slice(0, 500);
+  saveJson(FEEDBACK_FILE, feedback);
+  return record;
+}
+
+export function listFeedback() {
+  return feedback;
 }
