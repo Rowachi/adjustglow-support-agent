@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import type { ReactNode } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   ChatCircleText,
@@ -47,6 +48,81 @@ function newId() {
 
 function initialMessages(): Message[] {
   return [{ id: newId(), role: "bot", text: GREETING, suggestions: INITIAL_CHIPS }];
+}
+
+/** Turn `**bold**` runs into <strong> elements; everything else stays as
+ *  plain text. Deliberately minimal — the assistant only ever uses bold
+ *  for emphasis, never links, headings, or other markdown syntax. */
+function renderInline(text: string, keyPrefix: string): ReactNode {
+  const parts = text.split(/(\*\*[^*\n]+\*\*)/g).filter((part) => part !== "");
+  if (parts.length <= 1) return text;
+  return parts.map((part, i) =>
+    part.startsWith("**") && part.endsWith("**") && part.length > 4 ? (
+      <strong key={`${keyPrefix}-b${i}`} className="font-semibold text-ink">
+        {part.slice(2, -2)}
+      </strong>
+    ) : (
+      <span key={`${keyPrefix}-t${i}`}>{part}</span>
+    )
+  );
+}
+
+/** The assistant's replies are plain text with light markdown (`**bold**`
+ *  and `- ` bullet lines) baked in by the system prompt, but the chat
+ *  bubble used to render them as one flat string — literal asterisks and
+ *  bullet lines running together with no line breaks. This turns that
+ *  same text into real paragraphs, line breaks, and lists instead. */
+function renderMessageText(text: string): ReactNode {
+  const lines = text.split("\n");
+  const blocks: ReactNode[] = [];
+  let listBuffer: string[] = [];
+  let paraBuffer: string[] = [];
+
+  const flushList = (key: string) => {
+    if (!listBuffer.length) return;
+    blocks.push(
+      <ul key={key} className="my-1.5 list-disc space-y-0.5 pl-4 first:mt-0">
+        {listBuffer.map((item, i) => (
+          <li key={`${key}-li${i}`}>{renderInline(item, `${key}-li${i}`)}</li>
+        ))}
+      </ul>
+    );
+    listBuffer = [];
+  };
+
+  const flushPara = (key: string) => {
+    if (!paraBuffer.length) return;
+    blocks.push(
+      <p key={key} className="[&:not(:first-child)]:mt-2">
+        {paraBuffer.map((line, i) => (
+          <span key={`${key}-l${i}`}>
+            {i > 0 && <br />}
+            {renderInline(line, `${key}-l${i}`)}
+          </span>
+        ))}
+      </p>
+    );
+    paraBuffer = [];
+  };
+
+  lines.forEach((line, idx) => {
+    const trimmed = line.trim();
+    const bullet = /^[-*]\s+(.+)$/.exec(trimmed);
+    if (bullet) {
+      flushPara(`p${idx}`);
+      listBuffer.push(bullet[1]);
+    } else if (trimmed === "") {
+      flushList(`ul${idx}`);
+      flushPara(`p${idx}`);
+    } else {
+      flushList(`ul${idx}`);
+      paraBuffer.push(line);
+    }
+  });
+  flushList("ul-end");
+  flushPara("p-end");
+
+  return blocks.length ? <>{blocks}</> : text;
 }
 
 export function ChatWidget() {
@@ -290,6 +366,8 @@ export function ChatWidget() {
                   >
                     {m.role === "bot" && !m.text && m.placeholder ? (
                       <TypingIndicator waking={m.placeholder === "waking"} />
+                    ) : m.role === "bot" ? (
+                      renderMessageText(m.text)
                     ) : (
                       m.text
                     )}
