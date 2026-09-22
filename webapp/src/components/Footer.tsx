@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Logo } from "./Logo";
 
 export function Footer() {
@@ -37,6 +38,9 @@ export function Footer() {
             <a href="mailto:hello@adjustglow.com" className="text-sm text-ink-soft transition-colors hover:text-ink">
               Kontakt
             </a>
+            <Link href="/integritetspolicy" className="text-sm text-ink-soft transition-colors hover:text-ink">
+              Integritetspolicy
+            </Link>
           </div>
 
           <div className="flex flex-col gap-3">
