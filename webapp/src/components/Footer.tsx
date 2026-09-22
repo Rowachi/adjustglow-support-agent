@@ -41,6 +41,9 @@ export function Footer() {
             <Link href="/integritetspolicy" className="text-sm text-ink-soft transition-colors hover:text-ink">
               Integritetspolicy
             </Link>
+            <Link href="/personuppgiftsbitradesavtal" className="text-sm text-ink-soft transition-colors hover:text-ink">
+              DPA / Biträdesavtal
+            </Link>
           </div>
 
           <div className="flex flex-col gap-3">
