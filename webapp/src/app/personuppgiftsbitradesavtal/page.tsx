@@ -7,6 +7,9 @@ export const metadata: Metadata = {
   title: "Personuppgiftsbiträdesavtal (DPA): Adjustglow",
   description:
     "Adjustglows standardavtal för personuppgiftsbehandling (DPA) enligt GDPR artikel 28, tillgängligt att läsa direkt eller ladda ner som PDF.",
+  alternates: {
+    canonical: "/personuppgiftsbitradesavtal",
+  },
 };
 
 const VERSION = "1.0";

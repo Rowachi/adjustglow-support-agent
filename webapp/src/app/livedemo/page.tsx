@@ -6,6 +6,9 @@ import { Logo } from "@/components/Logo";
 export const metadata: Metadata = {
   title: "Se AI-supportagenten i praktiken: Adjustglow",
   description: "En riktig, fungerande AI-supportagent som svarar som en fiktiv cykelbutik, så ni kan se hela upplevelsen innan ni bokar en demo.",
+  alternates: {
+    canonical: "/livedemo",
+  },
 };
 
 export default function LiveDemoPage() {

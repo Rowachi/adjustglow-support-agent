@@ -7,6 +7,9 @@ export const metadata: Metadata = {
   title: "Integritetspolicy: Adjustglow",
   description:
     "Hur Adjustglow samlar in, använder och skyddar personuppgifter på adjustglow.com och i våra tjänster.",
+  alternates: {
+    canonical: "/integritetspolicy",
+  },
 };
 
 const LAST_UPDATED = "22 september 2026";
