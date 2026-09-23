@@ -16,7 +16,7 @@ export function Hero() {
           </h1>
 
           <p className="mt-5 max-w-[42ch] text-[1.05rem] leading-relaxed text-ink-soft">
-            Vi sköter er kundservice och förvandlar lösta ärenden till recensioner på Google och Trustpilot.
+            Vi sköter er kundservice och gör det till ett tryck för kunden att recensera er på Google och Trustpilot.
           </p>
 
           <div className="mt-8 flex flex-wrap items-center gap-3">

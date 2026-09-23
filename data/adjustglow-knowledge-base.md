@@ -9,11 +9,13 @@ om du menar Lumen Cycles-demot istället.)*
 Adjustglow är outsourcad kundservice för andra företag: vi bemannar
 livechatt, e-post och telefon åt våra kunder, i deras varumärkesröst. Utöver
 själva supporten bygger vi in recensionsinsamling i samma flöde — varje löst
-ärende kan utlösa en recensionsförfrågan, eller så kan slutkunden trycka
-direkt på ett fysiskt NFC/QR-kort i butik för att ge feedback utan att vänta
-på ett ärende. Godkända recensioner publiceras automatiskt vidare till
-kundens Google-företagsprofil och Trustpilot-profil. Kontakt:
-hello@adjustglow.com.
+ärende kan utlösa en förfrågan om ett omdöme, eller så kan slutkunden trycka
+direkt på ett fysiskt NFC/QR-kort i butik och lämna ett omdöme utan att vänta
+på ett ärende. Slutkunden skriver sitt omdöme hos oss och kan sedan, med ett
+tryck, kopiera sin text och öppna företagets sida på Google eller Trustpilot
+för att publicera samma omdöme där från sitt eget konto. Vi publicerar
+aldrig något i slutkundens namn (varken Google eller Trustpilot tillåter
+det). Kontakt: hello@adjustglow.com.
 
 ## Tjänster
 - **Livechatt & e-post** — utbildade agenter svarar i kundens varumärkesröst,
@@ -22,38 +24,44 @@ hello@adjustglow.com.
   befintliga nummer, med inspelade samtal och kvalitetsgranskning.
 - **Helpdesk & ärendehantering** — vi arbetar i kundens befintliga helpdesk,
   eller sätter upp en, med fullständig logg för varje konversation.
-- **Recensionsinsamling & synk** — varje löst ärende kan utlösa en
-  recensionsförfrågan, eller slutkunden trycker direkt på ett fysiskt
-  NFC/QR-kort i butik; godkända recensioner publiceras automatiskt till
-  Google och Trustpilot.
+- **Recensionsinsamling & delning** — varje löst ärende kan utlösa en
+  förfrågan om ett omdöme, eller slutkunden trycker direkt på ett fysiskt
+  NFC/QR-kort i butik. Omdömet sparas hos kunden, och slutkunden får knappar
+  som kopierar texten och öppnar Google eller Trustpilot, där hen själv
+  publicerar från sitt eget konto.
 
 ## Så funkar det (flödet)
 1. Kunden hör av sig via chatt, e-post eller telefon — vidarebefordras till
    en Adjustglow-agent insatt i kundens produkt.
 2. Agenten löser ärendet, loggat med lösningsanteckningar i kundens helpdesk.
-3. En kort fråga i kundens ton ber slutkunden betygsätta konversationen.
-4. Positiva recensioner går live på kundens varumärkta recensionssida direkt.
-5. Adjustglow skickar samma recension vidare till Google-företagsprofil och
-   Trustpilot.
+3. Alla slutkunder får samma korta fråga om ett omdöme, oavsett hur
+   samtalet gick.
+4. Omdömet (betyg och text) sparas i kundens instrumentpanel. Låga betyg
+   flaggas så att kunden kan höra av sig och följa upp.
+5. Slutkunden delar det vidare: med ett tryck kopieras texten och Google
+   eller Trustpilot öppnas, och slutkunden publicerar samma omdöme från sitt
+   eget konto.
 
 Har kunden fysiska NFC/QR-kort i butik? Då kan slutkunden trycka direkt och
-lämna feedback utan att vänta på ett löst ärende — resten av flödet (synk
-till Google & Trustpilot) är detsamma.
+lämna ett omdöme utan att vänta på ett löst ärende — resten av flödet är
+detsamma.
 
 ## Skillnaden mot att göra det själv
 Utan Adjustglow: svarstid på timmar eller dagar, recensioner samlas sällan
 in, manuell copy-paste till Google & Trustpilot om det görs alls, och
 företaget rekryterar/utbildar/schemalägger supporten själva.
 Med Adjustglow: målsatt svarstid under 2 minuter på nya ärenden, varje löst
-ärende ger en recensionsförfrågan, godkända recensioner publiceras
-automatiskt, och Adjustglow bemannar/utbildar/håller kvaliteten uppe.
+ärende ger en förfrågan om ett omdöme, slutkunden delar det till Google och
+Trustpilot med ett tryck, och Adjustglow bemannar/utbildar/håller kvaliteten
+uppe.
 
 ## Priser
 **Priserna nedan är preliminära utkast, inte bindande offerter** — Adjustglow
 fastställer alltid det slutgiltiga priset tillsammans med kunden innan
 uppstart. Var tydlig med kunden om att detta är uppskattningar.
 - **Starter** — 249 kr/mån. För ett företag som vill komma igång. 1 företag,
-  livechatt- & e-postsupport, 1–2 NFC/QR-kort, recensionsroutning, routning
+  livechatt- & e-postsupport, 1–2 NFC/QR-kort, delning till Google &
+  Trustpilot, routning
   till sociala medier, privat feedback, enkel dashboard, grundläggande
   analys.
 - **Growth** (mest valda) — 649 kr/mån. För företag med flera kort och fler
@@ -65,25 +73,33 @@ uppstart. Var tydlig med kunden om att detta är uppskattningar.
 
 ## Vanliga frågor
 - **Vilka recensionsplattformar stöds?** Google-företagsprofil och
-  Trustpilot stöds från start och skickas in automatiskt när en recension
-  godkänts enligt kundens recensionspolicy. Fler plattformar kan läggas
-  till på begäran.
+  Trustpilot. Slutkunden skriver sitt omdöme hos oss och kan sedan dela samma
+  text på båda med ett tryck: vi kopierar texten och öppnar rätt sida, och
+  slutkunden publicerar från sitt eget konto. Varken Google eller Trustpilot
+  tillåter att någon annan publicerar i slutkundens namn, så det gör
+  Adjustglow aldrig.
 - **Sköts konversationerna av människor eller en bot?** Utbildade
   mänskliga agenter hanterar varje konversation hos Adjustglows kunder. En
   bot kan triagera och besvara enkla, återkommande frågor om kunden vill
   det — men kunden avgör alltid vilka delar som förblir mänskliga.
-- **Vad händer om en slutkund lämnar en negativ recension?** Varje kund
-  bestämmer sin egen policy: vissa publicerar allt som det är, andra
-  skickar låga betyg till en privat uppföljning först så att problemet kan
-  lösas innan något blir publikt.
+- **Vad händer om en slutkund lämnar en negativ recension?** Alla slutkunder
+  får samma möjlighet att dela sitt omdöme på Google och Trustpilot, oavsett
+  betyg. Det är både ärligt och ett krav från plattformarna (att bara be
+  nöjda kunder om publika recensioner är förbjudet). Låga betyg flaggas
+  dessutom till kunden så att de kan höra av sig och försöka lösa problemet,
+  men det sker vid sidan av, aldrig i stället för, de publika knapparna.
 - **Kan recensionsförfrågans text och timing anpassas?** Ja — formulering,
   timing efter avslutat ärende, och vilka kanaler som utlöser en
   förfrågan går att ställa in per kund.
 - **Hur snabbt kan man komma igång?** De flesta kunder är igång med chatt
-  och e-post inom en vecka; telefonsupport och full recensionssynk följer
-  vanligtvis vecka två, när recensionspolicyn är bekräftad.
+  och e-post inom en vecka; telefonsupport och recensionsdelning följer
+  vanligtvis vecka två, när länkarna till kundens Google- och
+  Trustpilot-sidor är på plats.
 
 ## Vad den här assistenten INTE ska göra
+- Inte påstå att Adjustglow publicerar, synkar eller skickar in recensioner
+  till Google eller Trustpilot åt slutkunden. Slutkunden publicerar alltid
+  själv; Adjustglow gör det till ett tryck.
 - Inte hitta på priser, avtalsvillkor eller leveranstider som inte står här.
 - Inte lova en specifik startdatum eller ett bindande pris — hänvisa till att
   det bestäms tillsammans med kunden, och erbjud hello@adjustglow.com eller

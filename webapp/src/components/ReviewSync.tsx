@@ -4,10 +4,10 @@ import { motion } from "motion/react";
 import { Check } from "@phosphor-icons/react/dist/ssr";
 
 const POINTS = [
-  "Recensioner skickas vidare först efter en löst, verifierad supportkontakt",
-  "Ni godkänner recensionspolicyn: vad som kvalificerar, vad som hålls för uppföljning",
-  "Inskick till Google-företagsprofil och Trustpilot sköts åt er",
-  "En instrumentpanel visar varje recension, oavsett var den hamnade",
+  "Varje kund får samma fråga och samma knappar, oavsett betyg",
+  "Ett tryck kopierar kundens text och öppnar er sida på Google eller Trustpilot",
+  "Kunden publicerar från sitt eget konto, så recensionerna följer plattformarnas regler",
+  "En instrumentpanel visar varje omdöme, och låga betyg flaggas så att ni kan följa upp",
 ];
 
 export function ReviewSync() {
@@ -16,14 +16,15 @@ export function ReviewSync() {
       <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-14 px-5 py-20 md:grid-cols-2 md:px-8 md:py-28">
         <div>
           <span className="text-xs font-semibold uppercase tracking-[0.08em] text-orange-bright">
-            Recensionssynk
+            Recensionsdelning
           </span>
           <h2 className="mt-3 max-w-[16ch] text-[1.7rem] leading-tight font-semibold text-ink md:text-[2rem]">
-            En recension, publicerad där köpare faktiskt tittar.
+            Skrivs hos er. Delas där köpare faktiskt tittar.
           </h2>
           <p className="mt-4 max-w-[48ch] text-[1.02rem] leading-relaxed text-ink-soft">
-            De flesta recensionsverktyg stannar vid att samla in ett betyg. Adjustglows synkmotor går längre:
-            samma verifierade recension formateras och skickas till plattformarna som avgör om någon väljer er.
+            De flesta recensionsverktyg stannar vid att samla in ett betyg. Hos Adjustglow skriver kunden sitt
+            omdöme direkt i chatten eller via ert NFC/QR-kort, och delar sedan samma text på Google och Trustpilot
+            med ett tryck. Vi publicerar aldrig i kundens namn: det gör kunden själv, från sitt eget konto.
           </p>
           <ul className="mt-6 flex flex-col gap-3">
             {POINTS.map((point) => (
@@ -47,7 +48,7 @@ export function ReviewSync() {
           <svg
             viewBox="0 0 520 220"
             role="img"
-            aria-label="Flödesschema: din recensionssida matar Adjustglows synkmotor, som skickar till Google Recensioner och Trustpilot"
+            aria-label="Flödesschema: kunden skriver ett omdöme hos er, Adjustglow kopierar texten och öppnar Google Recensioner eller Trustpilot, där kunden själv publicerar"
             className="w-full"
           >
             <defs>
@@ -58,10 +59,10 @@ export function ReviewSync() {
             <g fontFamily="var(--font-sans), sans-serif" fontSize="12" fill="var(--color-ink-soft)">
               <rect x="16" y="88" width="140" height="52" rx="8" fill="var(--color-surface-2)" stroke="var(--color-line-bright)" />
               <text x="86" y="110" textAnchor="middle" fill="var(--color-ink)" fontWeight="600" fontSize="13">
-                Din recensions-
+                Kundens omdöme
               </text>
               <text x="86" y="127" textAnchor="middle" fontSize="13" fill="var(--color-ink)">
-                sida
+                hos er
               </text>
 
               <line x1="156" y1="114" x2="206" y2="114" stroke="var(--color-ink-faint)" strokeWidth="1.5" markerEnd="url(#arrow)" />
@@ -71,10 +72,10 @@ export function ReviewSync() {
                 Adjustglow
               </text>
               <text x="283" y="124" textAnchor="middle" fill="var(--color-orange-bright)" fontSize="13">
-                synkmotor
+                ett tryck
               </text>
               <text x="283" y="141" textAnchor="middle" fontSize="9.5" letterSpacing="0.05em" fill="var(--color-ink-faint)">
-                VERIFIERAD · FORMATERAD
+                KOPIERA · ÖPPNA
               </text>
 
               <line x1="358" y1="98" x2="404" y2="60" stroke="var(--color-ink-faint)" strokeWidth="1.5" markerEnd="url(#arrow)" />
@@ -94,6 +95,9 @@ export function ReviewSync() {
               </text>
               <text x="455" y="178" textAnchor="middle" fill="var(--color-accent)" fontSize="11">
                 ★★★★★
+              </text>
+              <text x="455" y="212" textAnchor="middle" fontSize="9.5" letterSpacing="0.05em" fill="var(--color-ink-faint)">
+                KUNDEN PUBLICERAR
               </text>
             </g>
           </svg>

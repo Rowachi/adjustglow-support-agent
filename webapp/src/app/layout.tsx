@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://adjustglow.com"),
   title: "Adjustglow: outsourcad kundservice som blir recensioner",
   description:
-    "Adjustglow sköter livechatt, e-post och telefon åt ditt företag, och förvandlar lösta ärenden till recensioner som publiceras direkt på Google och Trustpilot.",
+    "Adjustglow sköter livechatt, e-post och telefon åt ditt företag, ber varje kund om ett omdöme och gör det till ett tryck för kunden att dela det på Google och Trustpilot.",
   alternates: {
     canonical: "/",
   },

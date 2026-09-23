@@ -17,8 +17,8 @@ const SERVICES = [
   },
   {
     icon: Star,
-    title: "Recensionsinsamling & synk",
-    body: "Varje löst ärende utlöser en recensionsförfrågan, eller låt kunden trycka direkt på ett NFC/QR-kort i butik.",
+    title: "Recensionsinsamling & delning",
+    body: "Varje löst ärende ger en fråga om ett omdöme, eller så trycker kunden på ett NFC/QR-kort i butik. Sedan delar kunden det på Google och Trustpilot med ett tryck.",
   },
 ];
 

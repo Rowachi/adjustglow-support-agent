@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   },
 };
 
-const LAST_UPDATED = "22 september 2026";
+const LAST_UPDATED = "23 september 2026";
 
 type Section = {
   id: string;
@@ -109,8 +109,8 @@ const SECTIONS: Section[] = [
             <p className="mt-1.5 text-[0.95rem] leading-relaxed text-ink-soft">
               Meddelanden ni skickar i chattbubblan på webbplatsen skickas till vår support-backend för att
               generera ett svar. Rättslig grund: berättigat intresse av att kunna svara på frågor i realtid.
-              Konversationer lagras tillfälligt hos vår drifttjänst och rensas normalt i samband med
-              tjänstens driftunderhåll, de sparas inte som en permanent logg.
+              Konversationer sparas i vår databas (Neon, servrar inom EU) så att vi kan följa upp ärenden och
+              förbättra svaren. Vill ni att en konversation raderas, kontakta oss så tar vi bort den.
             </p>
           </div>
 
@@ -143,12 +143,13 @@ const SECTIONS: Section[] = [
     title: "Recensioner",
     body: (
       <p>
-        En del av Adjustglows tjänst går ut på att fråga en kund, efter ett löst supportärende eller en tapp mot
-        ett fysiskt NFC/QR-kort, om hen vill lämna en recension. Väljer kunden att göra det behandlar vi namn (om
-        det anges), betyg och recensionstext för att publicera recensionen och, om kunden godkänner det, skicka
-        den vidare till tredjepartstjänster som Google och Trustpilot. Rättslig grund: samtycke, som ges av
-        recensenten i det ögonblicket. En publicerad recension är offentligt synlig hos den tjänst den publiceras
-        på, och hanteras därefter enligt den tjänstens egna villkor.
+        En del av Adjustglows tjänst går ut på att fråga en kund, efter ett supportärende eller en tapp mot ett
+        fysiskt NFC/QR-kort, om hen vill lämna ett omdöme. Väljer kunden att göra det behandlar vi betyg,
+        omdömestext och förnamn (om det anges) för att spara omdömet åt det företag det gäller. Rättslig grund:
+        samtycke, som ges av den som lämnar omdömet i det ögonblicket. Vi publicerar aldrig något i kundens namn
+        på Google, Trustpilot eller någon annan tjänst. Kunden kan själv välja att dela sitt omdöme där: då
+        kopierar vi texten och öppnar tjänstens sida, och kunden publicerar från sitt eget konto enligt den
+        tjänstens egna villkor. Vi registrerar bara att knappen användes, inte vad som publicerades.
       </p>
     ),
   },
@@ -188,8 +189,12 @@ const SECTIONS: Section[] = [
             chattwidgeten och supportagenten, används för att generera svar på inkommande meddelanden.
           </li>
           <li className="rounded-xl border border-line-bright bg-surface p-4 text-[0.95rem] text-ink-soft">
-            <span className="font-semibold text-ink">Google och Trustpilot</span> &ndash; tar emot recensioner ni
-            aktivt väljer att publicera dit, se avsnitt 4.
+            <span className="font-semibold text-ink">Neon</span> &ndash; databas där konversationer, bokningar och
+            omdömen lagras, på servrar i Frankfurt (EU).
+          </li>
+          <li className="rounded-xl border border-line-bright bg-surface p-4 text-[0.95rem] text-ink-soft">
+            <span className="font-semibold text-ink">Google och Trustpilot</span> &ndash; vi skickar inga uppgifter
+            dit. Om ni själva väljer att dela ett omdöme där publicerar ni det från ert eget konto, se avsnitt 4.
           </li>
         </ul>
       </>
@@ -201,8 +206,8 @@ const SECTIONS: Section[] = [
     title: "Överföring till tredjeland",
     body: (
       <p>
-        Render och Anthropic, som nämns ovan, är amerikanska leverantörer och kan behandla uppgifter på servrar
-        utanför EU/EES. Sådan överföring sker med stöd av EU-kommissionens standardavtalsklausuler (SCC) eller en
+        Render, Anthropic och Neon, som nämns ovan, är amerikanska leverantörer. Neon lagrar våra uppgifter
+        inom EU, medan Render och Anthropic kan behandla uppgifter på servrar utanför EU/EES. Sådan överföring sker med stöd av EU-kommissionens standardavtalsklausuler (SCC) eller en
         annan godkänd överföringsmekanism enligt kapitel V i GDPR, som är den skyddsmekanism dessa leverantörer
         tillhandahåller i sina egna avtal. Kontakta oss om ni vill veta mer om vilka skyddsåtgärder som gäller för
         en specifik leverantör.

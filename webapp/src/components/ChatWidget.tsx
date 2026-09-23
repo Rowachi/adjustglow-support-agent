@@ -20,12 +20,12 @@ const STORAGE_KEY = "adjustglow-chat-v1";
 
 const INITIAL_CHIPS = [
   "Vad ingår i Growth?",
-  "Hur fungerar recensionssynken?",
+  "Hur delas recensioner till Google?",
   "Hur snabbt kan vi komma igång?",
 ];
 
 const GREETING =
-  "Hej, jag är Adjustglow-assistenten. Fråga mig om våra supportplaner, priser, eller hur recensionssynk till Google & Trustpilot fungerar.";
+  "Hej, jag är Adjustglow-assistenten. Fråga mig om våra supportplaner, priser, eller hur era kunder delar recensioner till Google & Trustpilot.";
 
 type Message = {
   id: string;

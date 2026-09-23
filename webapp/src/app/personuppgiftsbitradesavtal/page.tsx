@@ -12,8 +12,8 @@ export const metadata: Metadata = {
   },
 };
 
-const VERSION = "1.0";
-const LAST_UPDATED = "22 september 2026";
+const VERSION = "1.1";
+const LAST_UPDATED = "23 september 2026";
 
 type Section = {
   id: string;
@@ -115,15 +115,16 @@ const SECTIONS: Section[] = [
           <h4 className="font-display text-[1.05rem] font-semibold text-ink">Ändamål</h4>
           <p className="mt-1.5 text-[0.95rem] leading-relaxed text-ink-soft">
             Att tillhandahålla utkontrakterad kundservice (livechatt, e-post och/eller telefon) och/eller
-            insamling och publicering av kundrecensioner, å Kundens vägnar.
+            insamling av kundomdömen och bokning av tider, å Kundens vägnar.
           </p>
         </div>
         <div className="rounded-xl border border-line-bright bg-surface p-4">
           <h4 className="font-display text-[1.05rem] font-semibold text-ink">Behandlingens art</h4>
           <p className="mt-1.5 text-[0.95rem] leading-relaxed text-ink-soft">
-            Mottagande, besvarande, dokumentation och eskalering av kundärenden, samt insamling, lagring och
-            publicering av recensioner och vidarebefordran av dessa till tredjepartstjänster (t.ex. Google och
-            Trustpilot) i enlighet med den registrerades samtycke.
+            Mottagande, besvarande, dokumentation och eskalering av kundärenden, bokning, ändring och avbokning av
+            tider, samt insamling och lagring av omdömen. Adjustglow publicerar inga omdömen hos tredjepartstjänster
+            (t.ex. Google och Trustpilot); den registrerade kan själv välja att dela sitt omdöme där från sitt eget
+            konto.
           </p>
         </div>
         <div className="rounded-xl border border-line-bright bg-surface p-4">
@@ -137,8 +138,8 @@ const SECTIONS: Section[] = [
           <h4 className="font-display text-[1.05rem] font-semibold text-ink">Kategorier av personuppgifter</h4>
           <p className="mt-1.5 text-[0.95rem] leading-relaxed text-ink-soft">
             Namn, kontaktuppgifter (e-post, telefon), innehållet i kundens ärende eller meddelande, eventuell
-            order- eller köpinformation som Kunden delar med Adjustglow för att kunna besvara ärendet, samt
-            recensionstext och betyg. Adjustglow förutsätter att Kunden inte delar särskilda kategorier av
+            order- eller köpinformation som Kunden delar med Adjustglow för att kunna besvara ärendet,
+            bokningsuppgifter (tjänst, tid, eventuell kommentar), samt omdömestext och betyg. Adjustglow förutsätter att Kunden inte delar särskilda kategorier av
             personuppgifter (känsliga uppgifter) utan att detta särskilt avtalats.
           </p>
         </div>
@@ -213,6 +214,10 @@ const SECTIONS: Section[] = [
             <span className="font-semibold text-ink">Anthropic</span> &ndash; språkmodell som genererar svar i
             supportkonversationer.
           </li>
+          <li className="rounded-xl border border-line-bright bg-surface p-4 text-[0.95rem] text-ink-soft">
+            <span className="font-semibold text-ink">Neon</span> &ndash; databas för konversationer, bokningar och
+            omdömen, med lagring i Frankfurt (EU).
+          </li>
         </ul>
         <p className="mt-3">
           Adjustglow ska ingå ett skriftligt avtal med varje underbiträde som ålägger underbiträdet samma
@@ -235,7 +240,8 @@ const SECTIONS: Section[] = [
         EU/EES ska Adjustglow säkerställa att en giltig överföringsmekanism enligt kapitel V GDPR tillämpas,
         till exempel EU-kommissionens standardavtalsklausuler (SCC), innan överföringen sker. Vid Avtalets
         ingående sker sådan överföring till underbiträdena Render och Anthropic (båda USA), med stöd av SCC
-        eller en motsvarande godkänd skyddsåtgärd i respektive underbiträdes egna avtal.
+        eller en motsvarande godkänd skyddsåtgärd i respektive underbiträdes egna avtal. Neon (USA) lagrar
+        uppgifterna inom EU; i den mån leverantören har åtkomst från USA gäller motsvarande skyddsåtgärder.
       </p>
     ),
   },

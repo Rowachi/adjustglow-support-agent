@@ -143,3 +143,32 @@ Cycles Livedemo only).
 4. `GET /api/health` then reports `"storage": "postgres"`. The table is
    created automatically on first start.
 
+
+## Reviews and sharing to Google / Trustpilot
+
+Google and Trustpilot don't allow anyone to post a review on a customer's
+behalf (neither API can create reviews), so we never do. Instead:
+
+1. The customer writes a review here: in the chat (the AI calls the
+   `offer_review` tool when a conversation wraps up, or the customer clicks
+   "Lämna ett omdöme"), or on `public/review.html?b=<business>`, the page an
+   NFC/QR card links to.
+2. After submitting, every customer, whatever their rating, gets the same
+   buttons: each copies their own text and opens the business's Google or
+   Trustpilot review page, where they paste it and publish from their own
+   account. Showing the buttons only to happy customers ("review gating")
+   is banned by both platforms, so the widget never does that.
+3. Ratings of 1–2 are also flagged in the review queue so the business can
+   follow up, alongside the public buttons, never instead of them.
+
+- `data/reviews-config.json` — per business: `googleReviewUrl` (the "Ask
+  for reviews" link from the Google Business Profile) and
+  `trustpilotReviewUrl` (`https://www.trustpilot.com/evaluate/<domain>`).
+  `null` shows the button as unavailable (the fictional Lumen Cycles demo).
+- `src/reviews.js` — storage (via `src/db.js`), low-rating flags, share-click
+  counting, the `offer_review` tool and its prompt rules.
+- `public/review-widget.js` — the form + share step, shared by `agent.html`
+  and `review.html`.
+- API: `GET /api/reviews/settings?persona=`, `POST /api/reviews`,
+  `POST /api/reviews/:id/share`, `GET /api/reviews` (admin; names shortened
+  unless `x-admin-token` matches `ADMIN_TOKEN`).

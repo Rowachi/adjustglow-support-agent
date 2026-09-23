@@ -7,7 +7,7 @@ const STARTER = [
   "1 företag",
   "Livechatt- & e-postsupport",
   "1–2 NFC/QR-kort",
-  "Recensionsroutning",
+  "Delning till Google & Trustpilot",
   "Routning till sociala medier",
   "Privat feedback",
   "Enkel dashboard",
@@ -42,7 +42,7 @@ export function Pricing() {
             Enkla planer, prissatta per företag.
           </h2>
           <p className="mt-3 text-[1.02rem] leading-relaxed text-ink-soft">
-            Båda planerna inkluderar recensionsinsamling och synk till Google och Trustpilot. Fysiska NFC/QR-kort
+            Båda planerna inkluderar recensionsinsamling och delning till Google och Trustpilot. Fysiska NFC/QR-kort
             beställs separat, se priser nedan.
           </p>
         </div>
@@ -60,7 +60,7 @@ export function Pricing() {
               249 kr<span className="text-base font-sans font-medium text-ink-faint">/mån</span>
             </div>
             <p className="mt-2 text-sm text-ink-faint">
-              För ett företag som vill komma igång med kort och recensionsroutning.
+              För ett företag som vill komma igång med kort och recensionsinsamling.
             </p>
             <ul className="mt-6 flex flex-1 flex-col gap-2.5">
               {STARTER.map((item) => (

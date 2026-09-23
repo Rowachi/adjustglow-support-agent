@@ -33,7 +33,8 @@ export default function LiveDemoPage() {
           Det här är en riktig, fungerande agent, av samma typ som Adjustglow bygger åt kunder, som svarar som{" "}
           <strong className="text-ink">Lumen Cycles</strong>, en fiktiv cykelbutik, så ni kan se hela upplevelsen:
           inga mänskliga agenter, svar grundade i ett riktigt policydokument, och automatisk flaggning så fort
-          något behöver en specialist.
+          något behöver en specialist. Testa gärna att boka en verkstadstid eller lämna ett omdöme, och se hur
+          kunden sedan själv delar det på Google och Trustpilot med ett tryck.
         </p>
         <span className="mt-4 inline-flex items-center gap-2 rounded-full border border-line-bright bg-surface px-3.5 py-1.5 text-sm text-ink-soft">
           Föreställer Lumen Cycles: cykel- och elcykelbutik online
@@ -46,6 +47,7 @@ export default function LiveDemoPage() {
             src="https://adjustglow-support-agent.onrender.com/agent.html"
             title="Levande Lumen Cycles-supportagent"
             loading="lazy"
+            allow="clipboard-write"
             className="h-full w-full"
           />
         </div>

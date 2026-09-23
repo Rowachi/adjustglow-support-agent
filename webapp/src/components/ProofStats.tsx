@@ -5,7 +5,7 @@ import { motion } from "motion/react";
 const STATS = [
   { value: "2 min", label: "Målsatt svarstid på nya ärenden" },
   { value: "24/5", label: "Bemannad kanaltäckning" },
-  { value: "100%", label: "Recensioner verifierade före synk" },
+  { value: "1 tryck", label: "Från omdöme till Google eller Trustpilot" },
   { value: "7 dagar", label: "Till live drift, från signering" },
 ];
 

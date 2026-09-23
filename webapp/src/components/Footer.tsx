@@ -9,15 +9,15 @@ export function Footer() {
           <div>
             <Logo />
             <p className="mt-4 max-w-[36ch] text-sm leading-relaxed text-ink-faint">
-              Outsourcad kundservice som förvandlar lösta ärenden till recensioner, publicerade på er sajt, Google
-              och Trustpilot.
+              Outsourcad kundservice som gör lösta ärenden till omdömen, som era kunder delar på Google och
+              Trustpilot med ett tryck.
             </p>
           </div>
 
           <div className="flex flex-col gap-3">
             <h4 className="text-xs font-semibold uppercase tracking-[0.06em] text-ink-faint">Produkt</h4>
             <a href="#reviews" className="text-sm text-ink-soft transition-colors hover:text-ink">
-              Recensionssynk
+              Recensionsdelning
             </a>
             <a href="#how-it-works" className="text-sm text-ink-soft transition-colors hover:text-ink">
               Så funkar det

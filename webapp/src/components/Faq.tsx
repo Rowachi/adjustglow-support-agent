@@ -7,7 +7,7 @@ import { CaretDown } from "@phosphor-icons/react/dist/ssr";
 const FAQS = [
   {
     q: "Vilka recensionsplattformar stödjer ni?",
-    a: "Google-företagsprofil och Trustpilot stöds från start, och skickas in automatiskt när en recension godkänts enligt er recensionspolicy. Fler plattformar kan läggas till på begäran.",
+    a: "Google-företagsprofil och Trustpilot. Kunden skriver sitt omdöme hos er och kan sedan dela samma text på båda med ett tryck: vi kopierar texten och öppnar rätt sida, och kunden publicerar från sitt eget konto. Varken Google eller Trustpilot tillåter att någon annan publicerar i kundens namn, så det gör vi aldrig.",
   },
   {
     q: "Sköts konversationerna av människor eller en bot?",
@@ -15,7 +15,7 @@ const FAQS = [
   },
   {
     q: "Vad händer om en kund lämnar en negativ recension?",
-    a: "Ni bestämmer policyn: vissa företag publicerar allt som det är, andra skickar låga betyg till en privat uppföljning först så att problemet kan lösas innan något blir publikt. Inget filtreras utan att era regler finns på plats.",
+    a: "Alla kunder får samma möjlighet att dela sitt omdöme på Google och Trustpilot, oavsett betyg. Det är både ärligt och ett krav från plattformarna. Låga betyg flaggas dessutom till er så att ni kan höra av er och försöka lösa problemet, vid sidan av, aldrig i stället för, de publika knapparna.",
   },
   {
     q: "Kan vi anpassa recensionsförfrågans text och timing?",
@@ -23,7 +23,7 @@ const FAQS = [
   },
   {
     q: "Hur snabbt kan vi komma igång?",
-    a: "De flesta företag är igång med chatt och e-post inom en vecka. Telefonsupport och full recensionssynk följer vanligtvis vecka två, när er recensionspolicy är bekräftad.",
+    a: "De flesta företag är igång med chatt och e-post inom en vecka. Telefonsupport och recensionsdelning följer vanligtvis vecka två, när länkarna till era sidor på Google och Trustpilot är på plats.",
   },
 ];
 

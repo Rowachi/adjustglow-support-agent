@@ -6,6 +6,14 @@ import { runTurn, suggestFollowUps } from "./agent.js";
 import { listBookingsForAdmin, initBooking } from "./booking/index.js";
 import { initDb, usingDatabase } from "./db.js";
 import {
+  initReviews,
+  publicReviewSettings,
+  createReview,
+  recordShare,
+  listReviews,
+  ReviewError,
+} from "./reviews.js";
+import {
   initStore,
   ensureConversation,
   getConversation,
@@ -92,7 +100,7 @@ app.post("/api/chat", chatRateLimit, async (req, res) => {
     const conversationId = incomingId || nanoid();
     const convo = ensureConversation(conversationId, "chat", customer);
 
-    const { reply, flags, bookingEvents } = await runTurn({
+    const { reply, flags, bookingEvents, offerReview } = await runTurn({
       channel: "chat",
       conversationId,
       history: convo.messages.map((m) => ({ role: m.role, content: m.content })),
@@ -108,7 +116,13 @@ app.post("/api/chat", chatRateLimit, async (req, res) => {
 
     appendTurn(conversationId, message, reply);
 
-    res.json({ conversationId, reply, flagged: flags.length > 0, bookings: bookingEvents });
+    res.json({
+      conversationId,
+      reply,
+      flagged: flags.length > 0,
+      bookings: bookingEvents,
+      offerReview,
+    });
   } catch (err) {
     console.error("POST /api/chat failed:", err);
     res.status(500).json({ error: "Something went wrong generating a reply." });
@@ -160,7 +174,7 @@ app.post("/api/chat/stream", chatRateLimit, async (req, res) => {
   });
 
   try {
-    const { reply, flags, bookingEvents } = await runTurn({
+    const { reply, flags, bookingEvents, offerReview } = await runTurn({
       channel: "chat",
       conversationId,
       history: convo.messages.map((m) => ({ role: m.role, content: m.content })),
@@ -192,6 +206,7 @@ app.post("/api/chat/stream", chatRateLimit, async (req, res) => {
           flagged: flags.length > 0,
           suggestions,
           bookings: bookingEvents,
+          offerReview,
         })}\n\n`
       );
       res.end();
@@ -296,6 +311,50 @@ app.get("/api/feedback", (_req, res) => {
   res.json(listFeedback());
 });
 
+// ---- Reviews ----
+// The customer writes a review here; the response carries the business's
+// Google/Trustpilot review links so the page can offer one-tap sharing,
+// which the customer completes from their own account. See reviews.js.
+app.get("/api/reviews/settings", (req, res) => {
+  res.json(publicReviewSettings(String(req.query.persona || "default")));
+});
+
+app.post("/api/reviews", chatRateLimit, async (req, res) => {
+  try {
+    const { persona, conversationId, rating, text, name, source } = req.body || {};
+    const result = await createReview({
+      persona: typeof persona === "string" ? persona : "default",
+      conversationId: typeof conversationId === "string" ? conversationId : null,
+      rating,
+      text: typeof text === "string" ? text : "",
+      name: typeof name === "string" ? name : "",
+      source,
+    });
+    res.json(result);
+  } catch (err) {
+    if (err instanceof ReviewError) return badRequest(res, err.message);
+    console.error("POST /api/reviews failed:", err);
+    res.status(500).json({ error: "Kunde inte spara omdömet just nu." });
+  }
+});
+
+app.post("/api/reviews/:id/share", chatRateLimit, async (req, res) => {
+  try {
+    const shares = await recordShare(req.params.id, String(req.body?.target || ""));
+    res.json({ ok: true, shares });
+  } catch (err) {
+    if (err instanceof ReviewError) return badRequest(res, err.message);
+    console.error("POST /api/reviews/:id/share failed:", err);
+    res.status(500).json({ error: "Kunde inte spara." });
+  }
+});
+
+app.get("/api/reviews", (req, res) => {
+  const token = process.env.ADMIN_TOKEN;
+  const full = Boolean(token) && req.get("x-admin-token") === token;
+  res.json({ full, reviews: listReviews({ full }) });
+});
+
 // ---- Bookings (admin view) ----
 // Names and emails are masked by default, since this endpoint has no login
 // (same as the review queue). Set ADMIN_TOKEN on the server and send it as
@@ -310,6 +369,7 @@ app.get("/api/bookings", (req, res) => {
 await initDb();
 await initStore();
 await initBooking();
+await initReviews();
 
 const PORT = process.env.PORT || 8787;
 app.listen(PORT, () => {

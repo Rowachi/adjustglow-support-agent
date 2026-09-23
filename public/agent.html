@@ -88,6 +88,12 @@
   .booking-card .bc-main { font-weight: 600; margin-top: 3px; }
   .booking-card .bc-meta { color: var(--ink-soft); }
   .booking-card .bc-ref { font-variant-numeric: tabular-nums; letter-spacing: 0.04em; font-weight: 700; color: var(--ink); }
+  .review-slot { align-self: stretch; animation: msg-in 0.25s ease; }
+  .review-link {
+    all: unset; cursor: pointer; font-size: 0.8rem; font-weight: 600; color: var(--accent-bright);
+    border-bottom: 1px solid transparent; margin-top: 6px; display: inline-block;
+  }
+  .review-link:hover, .review-link:focus-visible { border-bottom-color: var(--accent-bright); }
   .chips { display: flex; flex-wrap: wrap; gap: 6px; align-self: flex-start; }
   .chip {
     font: inherit; font-size: 0.8rem; font-weight: 600; padding: 6px 11px; border-radius: 999px;
@@ -140,6 +146,7 @@
     <div class="panel-head">
       <h1>Supportchatt</h1>
       <p><span class="live">Svarar direkt</span> — varje svar här genereras i realtid, inga mänskliga agenter i den här kanalen.</p>
+      <button type="button" class="review-link" id="review-link">Lämna ett omdöme</button>
     </div>
     <div id="messages"></div>
     <form id="chat-form">
@@ -154,6 +161,7 @@
     som svarar här som en fiktiv butik, Lumen Cycles.
   </p>
 
+<script src="review-widget.js"></script>
 <script>
   const API_BASE = ""; // same origin as this page
   let conversationId = null;
@@ -179,6 +187,34 @@
     messagesEl.scrollTop = messagesEl.scrollHeight;
     return d;
   }
+
+  // Review form: shown when the assistant offers it at the end of a
+  // conversation, or any time via the "Lämna ett omdöme" link. Shown at most
+  // once per page so it never nags.
+  let reviewShown = false;
+  function showReviewForm() {
+    if (reviewShown || !window.AdjustglowReview) return;
+    reviewShown = true;
+    const slot = document.createElement('div');
+    slot.className = 'review-slot';
+    messagesEl.appendChild(slot);
+    window.AdjustglowReview.mount(slot, {
+      apiBase: API_BASE,
+      persona: 'default',
+      conversationId,
+      source: 'chat',
+      onReady: () => { messagesEl.scrollTop = messagesEl.scrollHeight; },
+      onDone: () => { messagesEl.scrollTop = messagesEl.scrollHeight; },
+    });
+  }
+  document.getElementById('review-link').addEventListener('click', () => {
+    if (reviewShown) {
+      const existing = messagesEl.querySelector('.review-slot');
+      if (existing) existing.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      return;
+    }
+    showReviewForm();
+  });
 
   const BOOKING_LABELS = { created: 'Bokning bekräftad', rescheduled: 'Bokning flyttad', cancelled: 'Bokning avbokad' };
 
@@ -234,6 +270,7 @@
       conversationId = data.conversationId;
       addMsg('bot', data.reply);
       (data.bookings || []).forEach(addBookingCard);
+      if (data.offerReview) showReviewForm();
     } catch (err) {
       typingEl.remove();
       addMsg('error', "Kunde inte nå supporten just nu — försök igen om en liten stund, eller mejla hello@lumencycles.example.");

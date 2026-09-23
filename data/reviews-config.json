@@ -1,0 +1,10 @@
+{
+  "_comment": "Review collection per persona/business. The customer writes the review here, then gets one-tap buttons that copy their own text and open the business's Google / Trustpilot review page, where THEY publish it from their own account. We never post on anyone's behalf (Google and Trustpilot forbid it). Every customer gets the same share buttons regardless of rating (no review gating). Set the URLs to the business's real pages: Google = the 'Ask for reviews' link from the Business Profile (https://g.page/r/.../review), Trustpilot = https://www.trustpilot.com/evaluate/<domain>. null = button shown as unavailable (used for the fictional Lumen Cycles demo).",
+  "default": {
+    "enabled": true,
+    "businessName": "Lumen Cycles",
+    "googleReviewUrl": null,
+    "trustpilotReviewUrl": null,
+    "demoNote": "Lumen Cycles är ett påhittat demoföretag, så knapparna öppnar inga riktiga sidor här. Hos en riktig kund öppnar de företagets egna sidor på Google och Trustpilot."
+  }
+}

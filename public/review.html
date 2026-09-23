@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Lämna ett omdöme</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Karla:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* The page an NFC/QR card in a client's shop points to: the customer taps
+     the card, lands here, and leaves a review without needing a chat first. */
+  :root {
+    --bg: #0B0805; --surface: #17110A; --surface-2: #1D160C; --surface-sunk: #0E0A06;
+    --line: #2C2314; --line-bright: #453419;
+    --accent: #E8AC2E; --accent-bright: #F7CB5E; --accent-ink: #1C1300;
+    --orange: #E2632A; --orange-bright: #F0824E; --orange-soft: #2C160A;
+    --ink: #F5EFE0; --ink-soft: #C9BEA4; --ink-faint: #857A61;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100dvh; background: var(--bg); color: var(--ink);
+    font-family: Karla, ui-sans-serif, system-ui, sans-serif;
+    display: flex; flex-direction: column; align-items: center; padding: 32px 16px 48px;
+  }
+  .brand { font-family: Fraunces, serif; font-weight: 600; font-size: 1.2rem; margin-bottom: 20px; }
+  main { width: 100%; max-width: 520px; }
+  .foot { margin-top: 18px; font-size: 0.76rem; color: var(--ink-faint); text-align: center; }
+  .foot a { color: var(--orange-bright); }
+</style>
+</head>
+<body>
+  <div class="brand" id="brand">&nbsp;</div>
+  <main id="review-root"></main>
+  <p class="foot">Omdömen via <a href="https://adjustglow.com" target="_blank" rel="noopener">Adjustglow</a></p>
+<script src="review-widget.js"></script>
+<script>
+  // ?b=<business key> selects the business (defaults to the Lumen Cycles demo).
+  const persona = new URLSearchParams(location.search).get('b') || 'default';
+  fetch('/api/reviews/settings?persona=' + encodeURIComponent(persona))
+    .then((r) => r.json())
+    .then((settings) => {
+      if (!settings.enabled) {
+        document.getElementById('review-root').textContent = 'Den här omdömessidan är inte aktiv.';
+        return;
+      }
+      document.getElementById('brand').textContent = settings.businessName;
+      document.title = 'Lämna ett omdöme om ' + settings.businessName;
+      window.AdjustglowReview.mount(document.getElementById('review-root'), { persona, source: 'card', settings });
+    })
+    .catch(() => { document.getElementById('review-root').textContent = 'Kunde inte ladda sidan. Försök igen om en stund.'; });
+</script>
+</body>
+</html>

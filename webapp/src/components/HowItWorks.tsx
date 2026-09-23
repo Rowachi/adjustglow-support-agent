@@ -15,18 +15,18 @@ const STEPS = [
   },
   {
     n: "3",
-    title: "Vi frågar om feedback",
-    body: "En kort fråga i er ton ber kunden betygsätta konversationen.",
+    title: "Vi ber om ett omdöme",
+    body: "Alla kunder får samma korta fråga i er ton, oavsett hur samtalet gick.",
   },
   {
     n: "4",
-    title: "Recensionen publiceras",
-    body: "Positiva recensioner går live på er varumärkta recensionssida direkt.",
+    title: "Omdömet sparas hos er",
+    body: "Betyg och text hamnar i er instrumentpanel. Låga betyg flaggas så att ni kan följa upp.",
   },
   {
     n: "5",
-    title: "Den synkas överallt",
-    body: "Adjustglow skickar samma recension vidare till Google-företagsprofil och Trustpilot.",
+    title: "Kunden delar det vidare",
+    body: "Ett tryck kopierar texten och öppnar Google eller Trustpilot, där kunden publicerar från sitt eget konto.",
   },
 ];
 
@@ -36,7 +36,7 @@ export function HowItWorks() {
       <div className="mx-auto max-w-7xl px-5 py-20 md:px-8 md:py-28">
         <div className="max-w-[46ch]">
           <h2 className="text-[1.7rem] leading-tight font-semibold text-ink md:text-[2rem]">
-            Från &quot;ärende öppnat&quot; till &quot;recension publicerad&quot;, i ett och samma flöde.
+            Från &quot;ärende öppnat&quot; till &quot;omdöme delat&quot;, i ett och samma flöde.
           </h2>
           <p className="mt-3 text-[1.02rem] leading-relaxed text-ink-soft">
             Inget separat recensionsverktyg att hantera. Det är inbyggt i samma konversation som er agent redan för.
@@ -60,7 +60,7 @@ export function HowItWorks() {
         </div>
 
         <p className="mt-12 max-w-[62ch] border-t border-line pt-6 text-sm leading-relaxed text-ink-faint">
-          Har ni fysiska NFC/QR-kort i butik? Kunden kan trycka direkt och lämna feedback utan att vänta på ett
+          Har ni fysiska NFC/QR-kort i butik? Kunden kan trycka direkt och lämna ett omdöme utan att vänta på ett
           löst ärende. Resten av flödet är detsamma.
         </p>
       </div>

@@ -12,8 +12,8 @@ const BEFORE = [
 
 const AFTER = [
   "Under 2 minuter i målsatt svarstid",
-  "Varje löst ärende ger en recensionsförfrågan",
-  "Godkända recensioner publiceras automatiskt",
+  "Varje löst ärende ger en fråga om ett omdöme",
+  "Kunden delar till Google & Trustpilot med ett tryck",
   "Vi bemannar, utbildar och håller kvaliteten uppe",
 ];
 

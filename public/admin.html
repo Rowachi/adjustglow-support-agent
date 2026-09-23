@@ -48,6 +48,10 @@
   <p class="sub">Everything the AI agent flagged for a human to look at. Resolved items stay listed, dimmed, for a record.</p>
   <div id="root">Loading…</div>
 
+  <h2>Reviews</h2>
+  <p class="sub">Reviews customers wrote in the chat or via an NFC/QR card, newest first. Every customer is offered the same one-tap buttons to post their own review on Google or Trustpilot from their own account; "Shared" counts those clicks (we can't see whether they actually published). Ratings of 1–2 also appear in the review queue above.</p>
+  <div id="reviews-root">Loading…</div>
+
   <h2>Bookings</h2>
   <p class="sub">Appointments the AI has booked in chat, soonest first. Names and emails are masked unless you enter the admin token (set ADMIN_TOKEN on the server). Demo data: bookings are wiped whenever the free Render service restarts.</p>
   <div class="token-row">
@@ -131,11 +135,43 @@
   }
 
   const bookingsRoot = document.getElementById('bookings-root');
+  const reviewsRoot = document.getElementById('reviews-root');
+
+  async function loadReviews() {
+    const headers = tokenInput.value ? { 'x-admin-token': tokenInput.value } : {};
+    const res = await fetch('/api/reviews', { headers });
+    const data = await res.json();
+    const items = data.reviews || [];
+    if (!items.length) {
+      reviewsRoot.innerHTML = '<div class="empty">No reviews yet.</div>';
+      return;
+    }
+    const avg = items.reduce((a, r) => a + r.rating, 0) / items.length;
+    const shared = items.filter((r) => (r.shares.google || 0) + (r.shares.trustpilot || 0) > 0).length;
+    const rows = items.slice(0, 200).map((r) => (
+      '<tr>' +
+      '<td class="rating ' + (r.rating >= 4 ? 'up' : r.rating <= 2 ? 'down' : '') + '">' + '★'.repeat(r.rating) + '<span style="opacity:.25">' + '★'.repeat(5 - r.rating) + '</span></td>' +
+      '<td>' + escapeHtml(r.text || '') + '</td>' +
+      '<td>' + escapeHtml(r.name || '') + '</td>' +
+      '<td>' + escapeHtml(r.source) + '</td>' +
+      '<td>Google ' + (r.shares.google || 0) + ' · Trustpilot ' + (r.shares.trustpilot || 0) + ' · Copied ' + (r.shares.copy || 0) + '</td>' +
+      '<td>' + new Date(r.createdAt).toLocaleString() + '</td>' +
+      '</tr>'
+    )).join('');
+    reviewsRoot.innerHTML =
+      '<div class="stat-row">' +
+      '<div class="stat-card"><div class="stat-num">' + items.length + '</div><div class="stat-label">Reviews</div></div>' +
+      '<div class="stat-card"><div class="stat-num">' + avg.toFixed(1) + '</div><div class="stat-label">Average rating</div></div>' +
+      '<div class="stat-card"><div class="stat-num">' + shared + '</div><div class="stat-label">Clicked through to Google/Trustpilot</div></div>' +
+      '</div>' +
+      '<table><thead><tr><th>Rating</th><th>Review</th><th>Name</th><th>Source</th><th>Shared</th><th>When</th></tr></thead><tbody>' + rows + '</tbody></table>';
+  }
   const tokenInput = document.getElementById('admin-token');
   try { tokenInput.value = sessionStorage.getItem('adminToken') || ''; } catch {}
   document.getElementById('token-apply').addEventListener('click', () => {
     try { sessionStorage.setItem('adminToken', tokenInput.value); } catch {}
     loadBookings();
+    loadReviews();
   });
 
   async function loadBookings() {
@@ -169,6 +205,7 @@
   }
 
   load();
+  loadReviews();
   loadBookings();
   loadFeedback();
 </script>

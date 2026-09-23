@@ -7,6 +7,7 @@ import {
   executeBookingTool,
   BOOKING_TOOL_NAMES,
 } from "./booking/index.js";
+import { reviewConfigFor, reviewPromptSection, OFFER_REVIEW_TOOL } from "./reviews.js";
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -44,7 +45,9 @@ function resolvePersona(personaKey) {
 // Livedemo (Lumen Cycles) has it for now; Adjustglow's own widget doesn't.
 function toolsFor(persona) {
   const cfg = bookingConfigFor(persona.key);
-  return cfg ? [...TOOLS, ...bookingTools(cfg)] : TOOLS;
+  const tools = cfg ? [...TOOLS, ...bookingTools(cfg)] : [...TOOLS];
+  if (reviewConfigFor(persona.key)) tools.push(OFFER_REVIEW_TOOL);
+  return tools;
 }
 
 const TOOLS = [
@@ -77,6 +80,8 @@ const TOOLS = [
 function buildSystemPrompt(channel, persona, now = new Date()) {
   const bookingCfg = bookingConfigFor(persona.key);
   const bookingSection = bookingCfg ? `\n\n${bookingPromptSection(bookingCfg, now)}` : "";
+  const reviewCfg = reviewConfigFor(persona.key);
+  const reviewSection = reviewCfg ? `\n\n${reviewPromptSection(reviewCfg)}` : "";
   const channelNote =
     channel === "email"
       ? `Du svarar via e-post. Skriv ett komplett svar: en kort hälsning, svaret, och en avslutning från "${persona.businessName} Support". Skriv ingen ämnesrad, bara brödtexten.`
@@ -88,7 +93,7 @@ ${channelNote}
 
 --- KUNSKAPSBAS (den enda källan till sanning för policy, frakt, returer, garanti, ordrar) ---
 ${persona.knowledgeBase}
---- SLUT PÅ KUNSKAPSBAS ---${bookingSection}
+--- SLUT PÅ KUNSKAPSBAS ---${bookingSection}${reviewSection}
 
 Använd verktyget flag_for_review exakt enligt instruktionerna i dess beskrivning. Att flagga är en anteckning för uppföljning, inte en överlämning: fortsätt hjälpa kunden i samma svar efter att du flaggat något.
 
@@ -117,7 +122,8 @@ Om en kund direkt frågar om de pratar med en människa eller en AI, eller ber o
  * @param {string} [args.conversationId] - stored on any booking made in this turn
  * @returns {Promise<{reply: string, flags: object[], bookingEvents: object[]}>}
  *   bookingEvents lists bookings created/rescheduled/cancelled in this turn,
- *   so the chat UI can show a confirmation card.
+ *   so the chat UI can show a confirmation card. offerReview is true when the
+ *   assistant asked for the review form to be shown under its reply.
  */
 export async function runTurn({ channel, history, userMessage, onFlag, persona, onTextDelta, conversationId }) {
   const p = resolvePersona(persona);
@@ -125,6 +131,8 @@ export async function runTurn({ channel, history, userMessage, onFlag, persona, 
   const tools = toolsFor(p);
   const bookingCfg = bookingConfigFor(p.key);
   const bookingEvents = [];
+  const reviewEnabled = Boolean(reviewConfigFor(p.key));
+  let offerReview = false;
 
   // Working copy for this turn's internal tool-use loop. We deliberately do
   // NOT persist raw tool_use/tool_result blocks into long-term history —
@@ -216,6 +224,13 @@ export async function runTurn({ channel, history, userMessage, onFlag, persona, 
           tool_use_id: tu.id,
           content: "Logged for human review. Continue helping the customer normally in your next message.",
         });
+      } else if (reviewEnabled && tu.name === "offer_review") {
+        offerReview = true;
+        toolResults.push({
+          type: "tool_result",
+          tool_use_id: tu.id,
+          content: "Omdömesformuläret visas under ditt svar. Avsluta med en kort, vänlig mening; be inte om ett visst betyg.",
+        });
       } else if (bookingCfg && BOOKING_TOOL_NAMES.has(tu.name)) {
         const result = await executeBookingTool(tu.name, tu.input || {}, {
           config: bookingCfg,
@@ -248,7 +263,7 @@ export async function runTurn({ channel, history, userMessage, onFlag, persona, 
     if (onTextDelta) onTextDelta(finalText);
   }
 
-  return { reply: finalText, flags, bookingEvents };
+  return { reply: finalText, flags, bookingEvents, offerReview };
 }
 
 /**
