@@ -21,6 +21,12 @@ export const metadata: Metadata = {
   icons: {
     icon: "/favicon.svg",
   },
+  // Google Search Console ownership proof for the https://adjustglow.com/
+  // URL-prefix property. Must stay in place: Google re-checks it periodically
+  // and drops verification if it disappears.
+  verification: {
+    google: "Hm1PVXfS14A5Y7GCi3dwiEd9xUriQGoSlhMU9HjieG4",
+  },
 };
 
 export default function RootLayout({
