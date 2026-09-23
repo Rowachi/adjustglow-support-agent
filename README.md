@@ -48,10 +48,14 @@ Then open:
   This is the *only* source of truth the agent is told to use for policy
   questions; it's instructed to admit when something isn't covered rather
   than guess.
-- `src/store.js` — a small JSON-file-backed store for conversations and the
-  review queue. Fine for a prototype; swap for a real database before this
-  handles production traffic (concurrent writes to the JSON files are not
-  safe under real load).
+- `src/db.js` — storage. With `DATABASE_URL` set (a Neon Postgres
+  connection string) everything is saved in one Postgres table, `records`,
+  and survives restarts and redeploys. Without it, data falls back to JSON
+  files in `data/` (fine locally, wiped on Render's free plan). The server
+  refuses to start if `DATABASE_URL` is set but the database can't be
+  reached, rather than silently using the wiped disk.
+- `src/store.js` — conversations, review queue and feedback, kept in memory
+  and written through to storage.
 - `src/server.js` — Express app exposing:
   - `POST /api/chat` — `{ message, conversationId? }` → `{ conversationId, reply, flagged }`
   - `POST /api/email/incoming` — `{ from, subject, body, conversationId? }` → `{ conversationId, reply, flagged }`
@@ -122,7 +126,7 @@ Cycles Livedemo only).
   touch a booking require `customer_confirmed: true`, and lookups need both
   the booking reference and the email it was made with.
 - `src/booking/providers/` — where bookings live. `local` is the built-in
-  scheduler (stores to `data/bookings.json`). TimeCenter has no public API,
+  scheduler (saved through `src/db.js`; a failed save rolls the change back). TimeCenter has no public API,
   so it can't be connected yet; Cal.com could be added as a provider with the
   same functions.
 - `GET /api/bookings` — admin list. Names/emails are masked unless the
@@ -130,6 +134,12 @@ Cycles Livedemo only).
 - Chat responses include `bookings` (created/rescheduled/cancelled in that
   turn) so the UI can show a confirmation card.
 
-On Render's free plan the disk is reset on every restart or redeploy, so
-bookings are demo data until storage moves to a database.
+## Database (Neon)
+
+1. Create a free project at neon.com (pick an EU region, e.g. Frankfurt).
+2. Copy its connection string (`postgresql://...sslmode=require`).
+3. In Render → adjustglow-support-agent → Environment, add `DATABASE_URL`
+   with that value and save (Render redeploys automatically).
+4. `GET /api/health` then reports `"storage": "postgres"`. The table is
+   created automatically on first start.
 

@@ -3,21 +3,20 @@
 // Availability is computed from each business's opening hours, service
 // durations and capacity (how many appointments can run in parallel, e.g.
 // the number of mechanics or chairs), minus bookings already made. Bookings
-// are stored in data/bookings.json.
+// are stored through ../../db.js (Neon Postgres when DATABASE_URL is set,
+// otherwise data/bookings.json).
 //
 // This is what lets the AI check real free times and book them inside the
 // chat today. A client that runs its calendar in an external system gets a
 // separate provider with the same five functions instead (see
 // providers/index.js); the AI tools and prompt don't change.
 //
-// Storage caveat (same as the rest of this prototype): on Render's free plan
-// the disk is wiped on every redeploy/restart, so bookings here are demo
-// data. Move this file's reads/writes to Postgres before real customers
-// depend on it.
+// All bookings are held in memory (loaded once by initBookings) so slot
+// checks stay synchronous: the check and the insert happen in the same tick,
+// so two customers can't both take the last free spot. Each change is then
+// written to storage; if that write fails the change is rolled back.
 
-import fs from "node:fs";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { loadCollection, saveRecord } from "../../db.js";
 import {
   zonedToUtc,
   localDate,
@@ -31,30 +30,27 @@ import {
   swedishDateLabel,
 } from "../time.js";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const BOOKINGS_FILE =
-  process.env.BOOKINGS_FILE || path.join(__dirname, "..", "..", "..", "data", "bookings.json");
-
 const MAX_ACTIVE_PER_EMAIL = 3; // abuse guard: future bookings per email per business
 const MAX_ACTIVE_PER_BUSINESS = 500; // keeps the demo file bounded
 const MAX_QUERY_DAYS = 14;
 const MAX_DAYS_RETURNED = 5;
 const MAX_TIMES_PER_DAY = 8;
 
-let bookings = loadBookings();
+let bookings = [];
 
-function loadBookings() {
-  try {
-    const data = JSON.parse(fs.readFileSync(BOOKINGS_FILE, "utf8"));
-    return Array.isArray(data) ? data : [];
-  } catch {
-    return [];
-  }
+export async function initBookings() {
+  bookings = await loadCollection("bookings");
 }
 
-function saveBookings() {
-  fs.mkdirSync(path.dirname(BOOKINGS_FILE), { recursive: true });
-  fs.writeFileSync(BOOKINGS_FILE, JSON.stringify(bookings, null, 2));
+/** Write one booking; on failure run `undo` and surface a friendly error. */
+async function persist(b, undo) {
+  try {
+    await saveRecord("bookings", b.id, b, bookings);
+  } catch (e) {
+    undo();
+    console.error("Saving booking failed:", e.message);
+    throw new BookingError("storage", "Bokningen kunde inte sparas just nu. Försök igen om en liten stund.");
+  }
 }
 
 class BookingError extends Error {
@@ -238,7 +234,7 @@ export function findAvailableSlots(config, { serviceId, dateFrom, dateTo, timeOf
   };
 }
 
-export function createBooking(config, input, now = new Date()) {
+export async function createBooking(config, input, now = new Date()) {
   const svc = getService(config, input.serviceId);
   const name = String(input.name || "").trim();
   const email = String(input.email || "").trim();
@@ -283,7 +279,9 @@ export function createBooking(config, input, now = new Date()) {
     updatedAt: now.toISOString(),
   };
   bookings.push(booking);
-  saveBookings();
+  await persist(booking, () => {
+    bookings = bookings.filter((x) => x !== booking);
+  });
   return publicView(config, booking);
 }
 
@@ -322,26 +320,28 @@ export function getBooking(config, { reference, email }) {
   return publicView(config, findOwned(config, reference, email));
 }
 
-export function cancelBooking(config, { reference, email }, now = new Date()) {
+export async function cancelBooking(config, { reference, email }, now = new Date()) {
   const b = findOwned(config, reference, email);
   assertChangeable(config, b, now);
+  const before = { ...b };
   b.status = "cancelled";
   b.updatedAt = now.toISOString();
-  saveBookings();
+  await persist(b, () => Object.assign(b, before));
   return publicView(config, b);
 }
 
-export function rescheduleBooking(config, { reference, email, date, time }, now = new Date()) {
+export async function rescheduleBooking(config, { reference, email, date, time }, now = new Date()) {
   const b = findOwned(config, reference, email);
   assertChangeable(config, b, now);
   const svc = getService(config, b.serviceId);
   const { start, end } = validateSlot(config, svc, date, time, now, b.id);
+  const before = { ...b };
   b.start = start.toISOString();
   b.end = end.toISOString();
   b.localDate = date;
   b.localTime = time;
   b.updatedAt = now.toISOString();
-  saveBookings();
+  await persist(b, () => Object.assign(b, before));
   return publicView(config, b);
 }
 

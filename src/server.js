@@ -3,8 +3,10 @@ import express from "express";
 import cors from "cors";
 import { nanoid } from "nanoid";
 import { runTurn, suggestFollowUps } from "./agent.js";
-import { listBookingsForAdmin } from "./booking/index.js";
+import { listBookingsForAdmin, initBooking } from "./booking/index.js";
+import { initDb, usingDatabase } from "./db.js";
 import {
+  initStore,
   ensureConversation,
   getConversation,
   appendTurn,
@@ -68,7 +70,11 @@ setInterval(() => {
 }, RATE_LIMIT_WINDOW_MS).unref();
 
 app.get("/api/health", (_req, res) => {
-  res.json({ ok: true, hasApiKey: Boolean(process.env.ANTHROPIC_API_KEY) });
+  res.json({
+    ok: true,
+    hasApiKey: Boolean(process.env.ANTHROPIC_API_KEY),
+    storage: usingDatabase() ? "postgres" : "files",
+  });
 });
 
 // ---- Web chat channel (non-streaming, kept for backward compatibility —
@@ -299,6 +305,11 @@ app.get("/api/bookings", (req, res) => {
   const full = Boolean(token) && req.get("x-admin-token") === token;
   res.json({ full, bookings: listBookingsForAdmin({ full }) });
 });
+
+// Connect storage and load saved data before accepting requests.
+await initDb();
+await initStore();
+await initBooking();
 
 const PORT = process.env.PORT || 8787;
 app.listen(PORT, () => {

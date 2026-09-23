@@ -217,7 +217,7 @@ export async function runTurn({ channel, history, userMessage, onFlag, persona, 
           content: "Logged for human review. Continue helping the customer normally in your next message.",
         });
       } else if (bookingCfg && BOOKING_TOOL_NAMES.has(tu.name)) {
-        const result = executeBookingTool(tu.name, tu.input || {}, {
+        const result = await executeBookingTool(tu.name, tu.input || {}, {
           config: bookingCfg,
           conversationId,
         });

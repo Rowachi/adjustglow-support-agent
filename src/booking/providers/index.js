@@ -22,6 +22,11 @@ import * as local from "./local.js";
 
 export const PROVIDERS = { local };
 
+/** Load stored bookings for every provider that keeps its own. */
+export async function initProviders() {
+  await local.initBookings();
+}
+
 export function getProvider(name) {
   return PROVIDERS[name] || null;
 }

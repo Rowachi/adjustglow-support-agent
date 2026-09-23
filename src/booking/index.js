@@ -10,7 +10,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { getProvider } from "./providers/index.js";
+import { getProvider, initProviders } from "./providers/index.js";
 import { BookingError } from "./providers/local.js";
 import { localDate, localTime, addDays, swedishDateLabel } from "./time.js";
 
@@ -38,6 +38,11 @@ function loadConfigs() {
 }
 
 const CONFIGS = loadConfigs();
+
+/** Load stored bookings. Call once at startup, after initDb(). */
+export async function initBooking() {
+  await initProviders();
+}
 
 /** Booking config for a persona, or null when booking isn't enabled for it. */
 export function bookingConfigFor(personaKey) {
@@ -196,11 +201,11 @@ const NEEDS_CONFIRMATION = new Set(["create_booking", "reschedule_booking", "can
 
 /**
  * Run one booking tool call.
- * @returns {{content: string, isError: boolean, event: object|null}}
+ * @returns {Promise<{content: string, isError: boolean, event: object|null}>}
  *   content  JSON string handed back to the model as the tool_result
  *   event    set when a booking actually changed, so the chat UI can show a card
  */
-export function executeBookingTool(name, input = {}, { config, conversationId, now = new Date() }) {
+export async function executeBookingTool(name, input = {}, { config, conversationId, now = new Date() }) {
   const provider = getProvider(config.provider);
   const ok = (data, event = null) => ({ content: JSON.stringify({ ok: true, ...data }), isError: false, event });
   const fail = (code, message) => ({
@@ -232,7 +237,7 @@ export function executeBookingTool(name, input = {}, { config, conversationId, n
           )
         );
       case "create_booking": {
-        const booking = provider.createBooking(
+        const booking = await provider.createBooking(
           config,
           {
             serviceId: input.service_id,
@@ -251,7 +256,7 @@ export function executeBookingTool(name, input = {}, { config, conversationId, n
       case "get_booking":
         return ok({ booking: provider.getBooking(config, { reference: input.reference, email: input.email }) });
       case "reschedule_booking": {
-        const booking = provider.rescheduleBooking(
+        const booking = await provider.rescheduleBooking(
           config,
           { reference: input.reference, email: input.email, date: input.date, time: input.time },
           now
@@ -259,7 +264,7 @@ export function executeBookingTool(name, input = {}, { config, conversationId, n
         return ok({ booking }, { type: "rescheduled", booking });
       }
       case "cancel_booking": {
-        const booking = provider.cancelBooking(config, { reference: input.reference, email: input.email }, now);
+        const booking = await provider.cancelBooking(config, { reference: input.reference, email: input.email }, now);
         return ok({ booking }, { type: "cancelled", booking });
       }
       default:
