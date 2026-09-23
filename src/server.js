@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import { nanoid } from "nanoid";
 import { runTurn, suggestFollowUps } from "./agent.js";
+import { listBookingsForAdmin } from "./booking/index.js";
 import {
   ensureConversation,
   getConversation,
@@ -85,8 +86,9 @@ app.post("/api/chat", chatRateLimit, async (req, res) => {
     const conversationId = incomingId || nanoid();
     const convo = ensureConversation(conversationId, "chat", customer);
 
-    const { reply, flags } = await runTurn({
+    const { reply, flags, bookingEvents } = await runTurn({
       channel: "chat",
+      conversationId,
       history: convo.messages.map((m) => ({ role: m.role, content: m.content })),
       userMessage: message,
       // Optional persona switch so this one deployed service can also answer
@@ -100,7 +102,7 @@ app.post("/api/chat", chatRateLimit, async (req, res) => {
 
     appendTurn(conversationId, message, reply);
 
-    res.json({ conversationId, reply, flagged: flags.length > 0 });
+    res.json({ conversationId, reply, flagged: flags.length > 0, bookings: bookingEvents });
   } catch (err) {
     console.error("POST /api/chat failed:", err);
     res.status(500).json({ error: "Something went wrong generating a reply." });
@@ -117,7 +119,7 @@ app.post("/api/chat", chatRateLimit, async (req, res) => {
 // Event stream shape:
 //   event: open   data: { conversationId }              — sent immediately
 //   event: delta  data: { text }                          — one per chunk
-//   event: done   data: { conversationId, flagged, suggestions } — once, at the end
+//   event: done   data: { conversationId, flagged, suggestions, bookings } — once, at the end
 //   event: error  data: { error }                          — only on failure
 app.post("/api/chat/stream", chatRateLimit, async (req, res) => {
   const { message, conversationId: incomingId, customer, persona } = req.body || {};
@@ -152,8 +154,9 @@ app.post("/api/chat/stream", chatRateLimit, async (req, res) => {
   });
 
   try {
-    const { reply, flags } = await runTurn({
+    const { reply, flags, bookingEvents } = await runTurn({
       channel: "chat",
+      conversationId,
       history: convo.messages.map((m) => ({ role: m.role, content: m.content })),
       userMessage: message,
       persona,
@@ -182,6 +185,7 @@ app.post("/api/chat/stream", chatRateLimit, async (req, res) => {
           conversationId,
           flagged: flags.length > 0,
           suggestions,
+          bookings: bookingEvents,
         })}\n\n`
       );
       res.end();
@@ -224,6 +228,7 @@ app.post("/api/email/incoming", async (req, res) => {
 
     const { reply, flags } = await runTurn({
       channel: "email",
+      conversationId,
       history: convo.messages.map((m) => ({ role: m.role, content: m.content })),
       userMessage: incomingMessage,
       onFlag: (flag) =>
@@ -283,6 +288,16 @@ app.post("/api/feedback", (req, res) => {
 
 app.get("/api/feedback", (_req, res) => {
   res.json(listFeedback());
+});
+
+// ---- Bookings (admin view) ----
+// Names and emails are masked by default, since this endpoint has no login
+// (same as the review queue). Set ADMIN_TOKEN on the server and send it as
+// the x-admin-token header to see full details.
+app.get("/api/bookings", (req, res) => {
+  const token = process.env.ADMIN_TOKEN;
+  const full = Boolean(token) && req.get("x-admin-token") === token;
+  res.json({ full, bookings: listBookingsForAdmin({ full }) });
 });
 
 const PORT = process.env.PORT || 8787;

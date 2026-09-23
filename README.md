@@ -104,3 +104,32 @@ capability can do.
   `.env` — check https://platform.claude.com/docs/en/about-claude/models/overview
   if you want to point it at a different model (e.g. a cheaper/faster one
   for simple chat traffic).
+
+## Bookings in chat
+
+The agent can check free times and book, look up, reschedule and cancel
+appointments inside the conversation (currently switched on for the Lumen
+Cycles Livedemo only).
+
+- `data/booking-config.json` — per-business setup: services (duration,
+  price), opening hours, closed dates, slot step, capacity (appointments that
+  can run at once), lead time, how far ahead people can book, and the
+  cancellation cutoff. Keys match the persona keys in `src/agent.js`.
+- `src/booking/index.js` — the five AI tools (`check_availability`,
+  `create_booking`, `get_booking`, `reschedule_booking`, `cancel_booking`),
+  the booking section of the system prompt (including a date table so "på
+  torsdag" maps to the right date), and the tool executor. Changes that
+  touch a booking require `customer_confirmed: true`, and lookups need both
+  the booking reference and the email it was made with.
+- `src/booking/providers/` — where bookings live. `local` is the built-in
+  scheduler (stores to `data/bookings.json`). TimeCenter has no public API,
+  so it can't be connected yet; Cal.com could be added as a provider with the
+  same functions.
+- `GET /api/bookings` — admin list. Names/emails are masked unless the
+  request sends an `x-admin-token` header matching the `ADMIN_TOKEN` env var.
+- Chat responses include `bookings` (created/rescheduled/cancelled in that
+  turn) so the UI can show a confirmation card.
+
+On Render's free plan the disk is reset on every restart or redeploy, so
+bookings are demo data until storage moves to a database.
+

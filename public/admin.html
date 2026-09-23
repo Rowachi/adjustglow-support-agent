@@ -38,12 +38,23 @@
   .rating { font-weight: 700; }
   .rating.up { color: var(--good); }
   .rating.down { color: var(--urgent); }
+  tr.cancelled { opacity: 0.5; }
+  .token-row { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; font-size: 0.85rem; color: var(--ink-soft); }
+  .token-row input { font: inherit; padding: 6px 10px; border: 1px solid var(--line); border-radius: 8px; width: 220px; }
 </style>
 </head>
 <body>
   <h1>Review queue</h1>
   <p class="sub">Everything the AI agent flagged for a human to look at. Resolved items stay listed, dimmed, for a record.</p>
   <div id="root">Loading…</div>
+
+  <h2>Bookings</h2>
+  <p class="sub">Appointments the AI has booked in chat, soonest first. Names and emails are masked unless you enter the admin token (set ADMIN_TOKEN on the server). Demo data: bookings are wiped whenever the free Render service restarts.</p>
+  <div class="token-row">
+    <input id="admin-token" type="password" placeholder="Admin token (optional)" autocomplete="off">
+    <button id="token-apply" type="button">Show full details</button>
+  </div>
+  <div id="bookings-root">Loading…</div>
 
   <h2>Feedback (👍 / 👎 on individual replies)</h2>
   <p class="sub">What visitors thought of each reply, most recent first. A run of 👎 on the same topic is worth reading closely.</p>
@@ -119,11 +130,46 @@
       '<table><thead><tr><th></th><th>Reply</th><th>Persona</th><th>When</th></tr></thead><tbody>' + rows + '</tbody></table>';
   }
 
+  const bookingsRoot = document.getElementById('bookings-root');
+  const tokenInput = document.getElementById('admin-token');
+  try { tokenInput.value = sessionStorage.getItem('adminToken') || ''; } catch {}
+  document.getElementById('token-apply').addEventListener('click', () => {
+    try { sessionStorage.setItem('adminToken', tokenInput.value); } catch {}
+    loadBookings();
+  });
+
+  async function loadBookings() {
+    const headers = tokenInput.value ? { 'x-admin-token': tokenInput.value } : {};
+    const res = await fetch('/api/bookings', { headers });
+    const data = await res.json();
+    const items = data.bookings || [];
+    if (!items.length) {
+      bookingsRoot.innerHTML = '<div class="empty">No bookings yet.</div>';
+      return;
+    }
+    const upcoming = items.filter((b) => b.status === 'confirmed').length;
+    const rows = items.map((b) => (
+      '<tr class="' + (b.status === 'cancelled' ? 'cancelled' : '') + '">' +
+      '<td><strong>' + escapeHtml(b.reference) + '</strong></td>' +
+      '<td>' + escapeHtml(b.service) + '</td>' +
+      '<td>' + escapeHtml(b.date) + ' ' + escapeHtml(b.time) + '</td>' +
+      '<td>' + escapeHtml(b.name) + '</td>' +
+      '<td>' + escapeHtml(b.email) + (b.phone ? '<br>' + escapeHtml(b.phone) : '') + '</td>' +
+      '<td>' + escapeHtml(b.notes || '') + '</td>' +
+      '<td>' + escapeHtml(b.status) + '</td>' +
+      '</tr>'
+    )).join('');
+    bookingsRoot.innerHTML =
+      '<div class="stat-row"><div class="stat-card"><div class="stat-num">' + upcoming + '</div><div class="stat-label">Confirmed bookings' + (data.full ? '' : ' (details masked)') + '</div></div></div>' +
+      '<table><thead><tr><th>Ref</th><th>Service</th><th>When</th><th>Name</th><th>Contact</th><th>Notes</th><th>Status</th></tr></thead><tbody>' + rows + '</tbody></table>';
+  }
+
   function escapeHtml(s) {
     return String(s || '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
 
   load();
+  loadBookings();
   loadFeedback();
 </script>
 </body>

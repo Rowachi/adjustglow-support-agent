@@ -2,3 +2,5 @@ node_modules/
 .env
 data/conversations.json
 data/review-queue.json
+data/bookings.json
+data/feedback.json

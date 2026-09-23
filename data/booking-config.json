@@ -1,0 +1,55 @@
+{
+  "_comment": "Booking setup per persona/business. Keys match the persona keys in src/agent.js. 'default' is the public Livedemo (Lumen Cycles, a fictional demo shop). Times are local to 'timezone'. capacity = how many appointments can run at the same time (e.g. number of mechanics).",
+  "default": {
+    "enabled": true,
+    "provider": "local",
+    "referencePrefix": "LC",
+    "timezone": "Europe/Stockholm",
+    "location": "Lumen Cycles verkstad i Stockholm (demo)",
+    "slotStepMinutes": 30,
+    "minLeadMinutes": 120,
+    "horizonDays": 30,
+    "cancelCutoffMinutes": 120,
+    "capacity": 2,
+    "openingHours": {
+      "mon": [["09:00", "17:00"]],
+      "tue": [["09:00", "17:00"]],
+      "wed": [["09:00", "17:00"]],
+      "thu": [["09:00", "19:00"]],
+      "fri": [["09:00", "16:00"]],
+      "sat": [["10:00", "14:00"]],
+      "sun": []
+    },
+    "closedDates": ["2026-12-24", "2026-12-25", "2026-12-26", "2026-12-31", "2027-01-01", "2027-01-06"],
+    "services": [
+      {
+        "id": "grundservice",
+        "name": "Grundservice",
+        "durationMinutes": 60,
+        "priceSek": 795,
+        "description": "Justering av växlar och bromsar, smörjning av kedja, däcktryck och säkerhetskontroll."
+      },
+      {
+        "id": "stor-service",
+        "name": "Stor service",
+        "durationMinutes": 120,
+        "priceSek": 1695,
+        "description": "Allt i grundservice plus rengöring av drivlinan och genomgång av lager och hjul. Reservdelar tillkommer."
+      },
+      {
+        "id": "elcykeldiagnos",
+        "name": "Elcykeldiagnos",
+        "durationMinutes": 45,
+        "priceSek": 595,
+        "description": "Felsökning av batteri, motor och display, inklusive programuppdatering."
+      },
+      {
+        "id": "provtur",
+        "name": "Provtur",
+        "durationMinutes": 30,
+        "priceSek": 0,
+        "description": "Provcykla valfri modell hos oss, kostnadsfritt."
+      }
+    ]
+  }
+}

@@ -1,5 +1,12 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { KNOWLEDGE_BASE, ADJUSTGLOW_KNOWLEDGE_BASE } from "./knowledgeBase.js";
+import {
+  bookingConfigFor,
+  bookingPromptSection,
+  bookingTools,
+  executeBookingTool,
+  BOOKING_TOOL_NAMES,
+} from "./booking/index.js";
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -14,7 +21,9 @@ const anthropic = new Anthropic({
 });
 const MODEL = process.env.ANTHROPIC_MODEL || "claude-sonnet-4-6";
 const BUSINESS_NAME = process.env.BUSINESS_NAME || "the business";
-const MAX_TOOL_ROUNDS = 4;
+// A booking turn can take several tool rounds (e.g. get_booking ->
+// check_availability -> reschedule_booking -> final reply).
+const MAX_TOOL_ROUNDS = 6;
 
 // Two personas share this one deployed backend:
 //  - "default"    the public Livedemo (Lumen Cycles, or whatever
@@ -23,12 +32,19 @@ const MAX_TOOL_ROUNDS = 4;
 //  - "adjustglow" Adjustglow's own chat widget on adjustglow.com, answering
 //                  about Adjustglow's own services/pricing/FAQ instead.
 const PERSONAS = {
-  default: { businessName: BUSINESS_NAME, knowledgeBase: KNOWLEDGE_BASE },
-  adjustglow: { businessName: "Adjustglow", knowledgeBase: ADJUSTGLOW_KNOWLEDGE_BASE },
+  default: { key: "default", businessName: BUSINESS_NAME, knowledgeBase: KNOWLEDGE_BASE },
+  adjustglow: { key: "adjustglow", businessName: "Adjustglow", knowledgeBase: ADJUSTGLOW_KNOWLEDGE_BASE },
 };
 
 function resolvePersona(personaKey) {
   return PERSONAS[personaKey] || PERSONAS.default;
+}
+
+// Booking is switched on per persona in data/booking-config.json. Only the
+// Livedemo (Lumen Cycles) has it for now; Adjustglow's own widget doesn't.
+function toolsFor(persona) {
+  const cfg = bookingConfigFor(persona.key);
+  return cfg ? [...TOOLS, ...bookingTools(cfg)] : TOOLS;
 }
 
 const TOOLS = [
@@ -58,7 +74,9 @@ const TOOLS = [
   },
 ];
 
-function buildSystemPrompt(channel, persona) {
+function buildSystemPrompt(channel, persona, now = new Date()) {
+  const bookingCfg = bookingConfigFor(persona.key);
+  const bookingSection = bookingCfg ? `\n\n${bookingPromptSection(bookingCfg, now)}` : "";
   const channelNote =
     channel === "email"
       ? `Du svarar via e-post. Skriv ett komplett svar: en kort hälsning, svaret, och en avslutning från "${persona.businessName} Support". Skriv ingen ämnesrad, bara brödtexten.`
@@ -70,7 +88,7 @@ ${channelNote}
 
 --- KUNSKAPSBAS (den enda källan till sanning för policy, frakt, returer, garanti, ordrar) ---
 ${persona.knowledgeBase}
---- SLUT PÅ KUNSKAPSBAS ---
+--- SLUT PÅ KUNSKAPSBAS ---${bookingSection}
 
 Använd verktyget flag_for_review exakt enligt instruktionerna i dess beskrivning. Att flagga är en anteckning för uppföljning, inte en överlämning: fortsätt hjälpa kunden i samma svar efter att du flaggat något.
 
@@ -96,10 +114,17 @@ Om en kund direkt frågar om de pratar med en människa eller en AI, eller ber o
  *   returned in full once the turn completes. Omit for a plain, non-streamed
  *   call (used by the email channel and any caller that doesn't need live
  *   token-by-token output).
- * @returns {Promise<{reply: string, flags: object[]}>}
+ * @param {string} [args.conversationId] - stored on any booking made in this turn
+ * @returns {Promise<{reply: string, flags: object[], bookingEvents: object[]}>}
+ *   bookingEvents lists bookings created/rescheduled/cancelled in this turn,
+ *   so the chat UI can show a confirmation card.
  */
-export async function runTurn({ channel, history, userMessage, onFlag, persona, onTextDelta }) {
-  const system = buildSystemPrompt(channel, resolvePersona(persona));
+export async function runTurn({ channel, history, userMessage, onFlag, persona, onTextDelta, conversationId }) {
+  const p = resolvePersona(persona);
+  const system = buildSystemPrompt(channel, p);
+  const tools = toolsFor(p);
+  const bookingCfg = bookingConfigFor(p.key);
+  const bookingEvents = [];
 
   // Working copy for this turn's internal tool-use loop. We deliberately do
   // NOT persist raw tool_use/tool_result blocks into long-term history —
@@ -134,7 +159,7 @@ export async function runTurn({ channel, history, userMessage, onFlag, persona, 
         max_tokens: 700,
         system,
         messages: workingMessages,
-        tools: TOOLS,
+        tools,
       });
       stream.on("text", (delta) => {
         if (!delta) return;
@@ -151,7 +176,7 @@ export async function runTurn({ channel, history, userMessage, onFlag, persona, 
         max_tokens: 700,
         system,
         messages: workingMessages,
-        tools: TOOLS,
+        tools,
       });
     }
 
@@ -191,6 +216,18 @@ export async function runTurn({ channel, history, userMessage, onFlag, persona, 
           tool_use_id: tu.id,
           content: "Logged for human review. Continue helping the customer normally in your next message.",
         });
+      } else if (bookingCfg && BOOKING_TOOL_NAMES.has(tu.name)) {
+        const result = executeBookingTool(tu.name, tu.input || {}, {
+          config: bookingCfg,
+          conversationId,
+        });
+        if (result.event) bookingEvents.push(result.event);
+        toolResults.push({
+          type: "tool_result",
+          tool_use_id: tu.id,
+          content: result.content,
+          ...(result.isError ? { is_error: true } : {}),
+        });
       } else {
         toolResults.push({
           type: "tool_result",
@@ -211,7 +248,7 @@ export async function runTurn({ channel, history, userMessage, onFlag, persona, 
     if (onTextDelta) onTextDelta(finalText);
   }
 
-  return { reply: finalText, flags };
+  return { reply: finalText, flags, bookingEvents };
 }
 
 /**
